@@ -3,13 +3,14 @@ from pygame.locals import *
 import requests
 from pprint import pprint
 import json 
+import sys
 
 # Pygame init
 pygame.init()
 
 # Main variables
 screen_size = (500, 600)
-run = True
+
 
 # Colours
 white = (255, 255, 255)
@@ -20,7 +21,7 @@ background_colour = (250, 250, 250)
 font_grid = pygame.font.SysFont(None, 40)
 
 #global variables
-dif = 500/9
+grid_gap = screen_size[0]/9
 
 # Screen init
 screen = pygame.display.set_mode((screen_size))
@@ -59,36 +60,53 @@ test_grid =[
     ]
 
 def draw_grid(board):
+    #This function draws the sudoku board
+
     screen.fill(background_colour)
     for i in range(9):
         for j in range(9):
             if board[i][j] != 0:
                 text1 = font_grid.render(str(board[i][j]), 1, (0, 0, 0))
-                screen.blit(text1, (i * dif + 15, j * dif + 15))
+                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
 
     for i in range(10):
         if i % 3 == 0 :
             thick = 7
         else:
             thick = 1
-        pygame.draw.line(screen, black, (0, i * dif), (500, i * dif), thick)
-        pygame.draw.line(screen, black, (i * dif, 0), (i * dif, 500), thick)  
+        pygame.draw.line(screen, black, (0, i * grid_gap), (500, i * grid_gap), thick)
+        pygame.draw.line(screen, black, (i * grid_gap, 0), (i * grid_gap, 500), thick)  
+
+
+
 
 
 def main_menu():
     print("Main menu")
 
 def game():
+    run = True
+
     board = get_sudoku_grid("Medium")
     pprint(board)
+
     while run:
         draw_grid(test_grid)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+        
+        
+        
         pygame.display.update()
+
 
 def main():
     # The main project funtion
-
+    main_menu()
     game()
 
 if __name__ == "__main__":
     main()
+
+pygame.quit()
