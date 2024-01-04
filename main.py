@@ -14,7 +14,7 @@ screen_size = (500, 600)
 
 # Colours
 
-current_theme = 'white'
+current_theme = 'dark'
 colour_themes = {
     'white': {
         'background_colour': (250, 250, 250),
