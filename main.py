@@ -150,7 +150,7 @@ def draw_grid(board):
 
 def main_menu():
     print("Main menu")
-    menu = pygame.image.load(r".\img\MainMenuTemplate.png")
+    menu = pygame.image.load(r"Projekt_Sudoku/img/MainMenuTemplate.png")
     run = True
     while run:
         screen.blit(menu,(0, 0))
