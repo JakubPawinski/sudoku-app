@@ -19,6 +19,7 @@ background_colour = (250, 250, 250)
 
 highlited_colour = (177, 219, 238)
 highlited_colour_background = (230, 230, 230)
+highlited_number_colour = (86, 166, 206)
 
 #fonts
 font_grid = pygame.font.SysFont(None, 40)
@@ -74,7 +75,6 @@ def get_highlighted_box_cords(cords):
 def draw_highlighted_cells():
     #This function draw highlited cells
 
-    print(cords)
     #Check if it is possible to highlight the cells
     if cords[0] <= 8 and cords[1] <= 8:
         box_cords = get_highlighted_box_cords(cords)
@@ -86,6 +86,7 @@ def draw_highlighted_cells():
         pygame.draw.rect(screen, highlited_colour_background, (0, cords[1] * grid_gap, grid_gap * 9, grid_gap))
         #Highlited cell
         pygame.draw.rect(screen, highlited_colour, (cords[0] * grid_gap, cords[1] * grid_gap, grid_gap, grid_gap))
+
 
 
 
@@ -123,12 +124,22 @@ test_grid =[
 def draw_grid(board):
     #This function draws the sudoku board
 
+    # print(test_grid[int(cords[0])][int(cords[1])])
+    #This loop draws numbers
     for i in range(9):
         for j in range(9):
-            if board[i][j] != 0:
-                text1 = font_grid.render(str(board[i][j]), 1, (0, 0, 0))
+            #Draw if highlited number != board number
+            if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])]:
+                text1 = font_grid.render(str(board[i][j]), 1, black)
                 screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-
+            #Draw if highlited number == board number
+            if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0:
+                text1 = font_grid.render(str(board[i][j]), 1, highlited_number_colour)
+                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                if i == cords[0] and cords[1] == j:
+                    text1 = font_grid.render(str(board[i][j]), 1, black)
+                    screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+    #This loop draws sudoku lines  
     for i in range(10):
         if i % 3 == 0 :
             thick = 7
@@ -139,8 +150,21 @@ def draw_grid(board):
 
 def main_menu():
     print("Main menu")
+    menu = pygame.image.load(r".\img\MainMenuTemplate.png")
+    run = True
+    while run:
+        screen.blit(menu,(0, 0))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+
+        pygame.display.update()
 
 def game():
+    print("Game")
     global cords
 
     run = True
