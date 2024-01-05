@@ -22,14 +22,16 @@ colour_themes = {
         'highlited_colour': (177, 219, 238),
         'highlited_colour_background': (230, 230, 230),
         'highlited_number_colour': (118, 171, 246),
-        'number': (0, 0, 0)
+        'number': (0, 0, 0),
+        'ui': 'img\GameUIWhite.png'
     },
     'dark': {
         'background_colour': (40, 41, 47),
         'highlited_colour': (86, 166, 206),
         'highlited_colour_background': (53, 55, 63),
         'highlited_number_colour': (86, 166, 206),
-        'number': (106, 109, 124)
+        'number': (106, 109, 124),
+        'ui': 'img\GameUIBlack.png'
     }
 }
 #fonts
@@ -108,7 +110,7 @@ def get_sudoku_grid(difficulty):
     get_asked_difficulty = False
 
     while not get_asked_difficulty:
-        api_url = 'https://sudoku-api.vercel.app/api/dosuku!!!'
+        api_url = 'https://sudoku-api.vercel.app/api/dosuku'
         response = requests.get(api_url)
 
         if response.status_code == 200:
@@ -212,9 +214,10 @@ def main_menu():
 
 def game():
     print("Game")
+    #variables
     global cords
     global board_type
-
+    ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
     
     if board_type == "last":
         print("Last grid")
@@ -224,12 +227,15 @@ def game():
         board = get_sudoku_grid(board_type)['value']
         pprint(board)
 
+
     run = True
     while run:
+
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
         draw_highlighted_cells()
         draw_grid(board)
+        screen.blit(ui, (0, 500)) #draw Game UI
 
 
         for event in pygame.event.get():
