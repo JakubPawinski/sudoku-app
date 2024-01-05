@@ -4,6 +4,7 @@ import requests
 from pprint import pprint
 import json 
 import sys
+import time
 
 # Pygame init
 pygame.init()
@@ -14,7 +15,7 @@ screen_size = (500, 600)
 
 # Colours
 
-current_theme = 'dark'
+current_theme = 'white'
 colour_themes = {
     'white': {
         'background_colour': (250, 250, 250),
@@ -103,24 +104,32 @@ def draw_highlighted_cells():
 def get_sudoku_grid(difficulty):
     # The function gets the sudoku board from api and returns both the sudoku board and its solution
     print(difficulty)
-    api_url = 'https://sudoku-api.vercel.app/api/dosuku'
-    queries = {
-        'newboard': 'newboard',
-        'limit': 1,
-        'grids': {"value": "value", "solution" : "solution", "difficulty": "Easy"},
-        'results': 'results',
-        'message': 'message'                 
-      }
-    # queries['grids']['difficulty'] = difficulty
-    print(queries)
-    response = requests.get(api_url, params=queries)
-    data = response.json()
 
-    pprint(data)
-    # Create dictionary with solution and the value of the sudoku board
-    data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution']}
-    return data
+    get_asked_difficulty = False
 
+    while not get_asked_difficulty:
+        api_url = 'https://sudoku-api.vercel.app/api/dosuku!!!'
+        response = requests.get(api_url)
+
+        if response.status_code == 200:
+            pprint(response)
+            data = response.json()
+            pprint(data)
+            if data['newboard']['grids'][0]['difficulty'] == difficulty:
+                get_asked_difficulty = True
+                print('===============')
+                data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution']}
+                return data
+            time.sleep(0.1)
+        else:
+            get_asked_difficulty = True
+            with open("boards.json", 'r') as json_file:
+                json_data = json.load(json_file)
+            data = json_data
+            data = {'value': data[difficulty]['newboard']['grids'][0]['value'], 'solution': data[difficulty]['newboard']['grids'][0]['solution']}
+            pprint(data)
+            return data
+        
 #example grid
 test_grid =[
         [7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -139,21 +148,22 @@ def draw_grid(board):
 
     # print(test_grid[int(cords[0])][int(cords[1])])
     #This loop draws numbers
-    for i in range(9):
-        for j in range(9):
-            #Draw if highlited number != board number
-            if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])]:
-                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
-                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                
-            #Draw if highlited number == board number
-            if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0:
-                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
-                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                if i == cords[0] and cords[1] == j:
+    if cords[1] <= 8: # TEMP FIX
+        for i in range(9):
+            for j in range(9):
+                #Draw if highlited number != board number
+                if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])]:
                     text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
                     screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                    # print(i, j, board[i][j], "cords", cords)
+                    
+                #Draw if highlited number == board number
+                if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0:
+                    text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
+                    screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                    if i == cords[0] and cords[1] == j:
+                        text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
+                        screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                        # print(i, j, board[i][j], "cords", cords)
     #This loop draws sudoku lines  
     for i in range(10):
         if i % 3 == 0 :
@@ -166,7 +176,8 @@ def draw_grid(board):
 def main_menu():
     global board_type
     print("Main menu")
-    menu = pygame.image.load(r"Projekt_Sudoku/img/MainMenuTemplate.png")
+    menu = pygame.image.load(r"img\MainMenuTemplate.png")
+    loading = pygame.image.load(r"img\LoadingScreen.png")
     run = True
     while run:
         screen.blit(menu,(0, 0))
@@ -180,18 +191,22 @@ def main_menu():
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 145 and pos[1] < 215:
                     board_type = "last"
                     print(board_type)
+                    screen.blit(loading,(0, 0))
                     run = False
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 300 and pos[1] < 365:
                     board_type = "Easy"
                     print(board_type)
+                    screen.blit(loading,(0, 0))
                     run = False
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 385 and pos[1] < 450:
                     board_type = "Medium"
                     print(board_type)
+                    screen.blit(loading,(0, 0))
                     run = False
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 475 and pos[1] < 540:
                     board_type = "Hard"
                     print(board_type)
+                    screen.blit(loading,(0, 0))
                     run = False
         pygame.display.update()
 
@@ -199,7 +214,7 @@ def game():
     print("Game")
     global cords
     global board_type
-    run = True
+
     
     if board_type == "last":
         print("Last grid")
@@ -209,6 +224,7 @@ def game():
         board = get_sudoku_grid(board_type)['value']
         pprint(board)
 
+    run = True
     while run:
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
