@@ -30,7 +30,7 @@ colour_themes = {
         'highlited_colour_background': (53, 55, 63),
         'highlited_number_colour': (86, 166, 206),
         'number': (106, 109, 124),
-        'ui': 'img\GameUIBlack.png'
+        'ui': 'img\GameUIDark.png'
     }
 }
 #fonts
