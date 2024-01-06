@@ -14,7 +14,6 @@ screen_size = (500, 600)
 
 
 # Colours
-
 current_theme = 'white'
 colour_themes = {
     'white': {
@@ -150,22 +149,21 @@ def draw_grid(board):
 
     # print(test_grid[int(cords[0])][int(cords[1])])
     #This loop draws numbers
-    if cords[1] <= 8: # TEMP FIX
-        for i in range(9):
-            for j in range(9):
-                #Draw if highlited number != board number
-                if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])]:
+    for i in range(9):
+        for j in range(9):
+            #Draw if highlited number != board number
+            if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])] and cords[1] <= 8:
+                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
+                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                
+            #Draw if highlited number == board number
+            if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0 and cords[1] <= 8:
+                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
+                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                if i == cords[0] and cords[1] == j:
                     text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
                     screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                    
-                #Draw if highlited number == board number
-                if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0:
-                    text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
-                    screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                    if i == cords[0] and cords[1] == j:
-                        text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
-                        screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                        # print(i, j, board[i][j], "cords", cords)
+                    # print(i, j, board[i][j], "cords", cords)
     #This loop draws sudoku lines  
     for i in range(10):
         if i % 3 == 0 :
@@ -243,7 +241,8 @@ def game():
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                cords = get_cords(pos)
+                if pos[1] <= 500:
+                    cords = get_cords(pos)
 
 
         #test funtion
