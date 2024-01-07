@@ -40,6 +40,7 @@ font_grid = pygame.font.SysFont(None, 40)
 grid_gap = screen_size[0]/9
 cords = [0, 0]
 board_type = None
+value = 0
 
 # Screen init
 screen = pygame.display.set_mode((screen_size))
@@ -99,8 +100,15 @@ def draw_highlighted_cells():
         #Highlited cell
         pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour'], (cords[0] * grid_gap, cords[1] * grid_gap, grid_gap, grid_gap))
 
+def valid(board, value, cords):
+    if board['value'][int(cords[0])][int(cords[1])] == 0 and board['solution'][int(cords[0])][int(cords[1])] == value:
+        return True
+    else:
+        return False
 
-
+def if_win(board):
+    if board['value'] == board['solution']:
+        return True
 
 def get_sudoku_grid(difficulty):
     # The function gets the sudoku board from api and returns both the sudoku board and its solution
@@ -132,17 +140,26 @@ def get_sudoku_grid(difficulty):
             return data
         
 #example grid
-test_grid =[
-        [7, 8, 0, 4, 0, 0, 1, 2, 0],
-        [6, 0, 0, 0, 7, 5, 0, 0, 9],
-        [0, 0, 0, 6, 0, 1, 0, 7, 8],
-        [0, 0, 7, 0, 4, 0, 2, 6, 0],
-        [0, 0, 1, 0, 5, 0, 9, 3, 0],
-        [9, 0, 4, 0, 6, 0, 0, 0, 5],
-        [0, 7, 0, 3, 0, 0, 0, 1, 2],
-        [1, 2, 0, 0, 0, 7, 4, 0, 0],
-        [0, 4, 9, 2, 0, 6, 0, 0, 7]
-    ]
+test_grid ={
+        'value':[[4, 5, 8, 7, 9, 6, 3, 1, 2],
+           [7, 6, 9, 1, 2, 3, 5, 8, 4],
+           [1, 3, 2, 4, 8, 5, 7, 9, 6],
+           [8, 2, 7, 3, 6, 9, 1, 4, 5],
+           [3, 9, 1, 5, 4, 2, 8, 6, 7],
+           [6, 4, 5, 8, 1, 7, 2, 3, 9],
+           [5, 1, 4, 9, 7, 8, 6, 2, 3],
+           [9, 7, 6, 2, 3, 1, 4, 5, 8],
+           [2, 8, 3, 6, 5, 4, 9, 0, 0]],
+        'solution': [[4, 5, 8, 7, 9, 6, 3, 1, 2],
+              [7, 6, 9, 1, 2, 3, 5, 8, 4],
+              [1, 3, 2, 4, 8, 5, 7, 9, 6],
+              [8, 2, 7, 3, 6, 9, 1, 4, 5],
+              [3, 9, 1, 5, 4, 2, 8, 6, 7],
+              [6, 4, 5, 8, 1, 7, 2, 3, 9],
+              [5, 1, 4, 9, 7, 8, 6, 2, 3],
+              [9, 7, 6, 2, 3, 1, 4, 5, 8],
+              [2, 8, 3, 6, 5, 4, 9, 7, 1]]
+}
 
 def draw_grid(board):
     #This function draws the sudoku board
@@ -215,6 +232,7 @@ def game():
     #variables
     global cords
     global board_type
+    health = 3
     ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
     
     if board_type == "last":
@@ -222,17 +240,18 @@ def game():
         board = test_grid
         pprint(board)
     else:
-        board = get_sudoku_grid(board_type)['value']
+        board = get_sudoku_grid(board_type)
         pprint(board)
 
 
     run = True
     while run:
-
+        global value
+        value = 0
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
         draw_highlighted_cells()
-        draw_grid(board)
+        draw_grid(board['value'])
         screen.blit(ui, (0, 500)) #draw Game UI
 
 
@@ -243,8 +262,39 @@ def game():
                 pos = pygame.mouse.get_pos()
                 if pos[1] <= 500:
                     cords = get_cords(pos)
+            if event.type == KEYDOWN:
+                if event.key == pygame.K_1 or event.key == pygame.K_KP1:
+                    value = 1
+                if event.key == pygame.K_2 or event.key == pygame.K_KP2:
+                    value = 2
+                if event.key == pygame.K_3 or event.key == pygame.K_KP3:
+                    value = 3
+                if event.key == pygame.K_4 or event.key == pygame.K_KP4:
+                    value = 4
+                if event.key == pygame.K_5 or event.key == pygame.K_KP5:
+                    value = 5
+                if event.key == pygame.K_6 or event.key == pygame.K_KP6:
+                    value = 6
+                if event.key == pygame.K_7 or event.key == pygame.K_KP7:
+                    value = 7
+                if event.key == pygame.K_8 or event.key == pygame.K_KP8:
+                    value = 8
+                if event.key == pygame.K_9 or event.key == pygame.K_KP9:
+                    value = 9
+        
+        if value != 0 and board['value'][int(cords[0])][int(cords[1])] == 0:
+            print(value)  
+            if valid(board, value, cords) == True:
+                board['value'][int(cords[0])][int(cords[1])] = value
+            else:
+                health -= 1
+        if health == 0:
+            print('Koniec')
+            run = False
 
-
+        if if_win(board) == True:
+            print("Wygrana")
+            run = False
         #test funtion
         # debug_mouse_position()
         
