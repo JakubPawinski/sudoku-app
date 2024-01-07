@@ -14,7 +14,7 @@ screen_size = (500, 600)
 
 
 # Colours
-current_theme = 'white'
+current_theme = 'dark'
 colour_themes = {
     'white': {
         'background_colour': (250, 250, 250),
@@ -22,7 +22,7 @@ colour_themes = {
         'highlited_colour_background': (230, 230, 230),
         'highlited_number_colour': (118, 171, 246),
         'number': (0, 0, 0),
-        'ui': 'img\GameUIWhite.png'
+        'ui': 'Projekt_Sudoku/img/GameUIWhite.png'
     },
     'dark': {
         'background_colour': (40, 41, 47),
@@ -30,7 +30,7 @@ colour_themes = {
         'highlited_colour_background': (53, 55, 63),
         'highlited_number_colour': (86, 166, 206),
         'number': (106, 109, 124),
-        'ui': 'img\GameUIDark.png'
+        'ui': 'Projekt_Sudoku/img/GameUIDark.png'
     }
 }
 #fonts
@@ -193,8 +193,8 @@ def draw_grid(board):
 def main_menu():
     global board_type
     print("Main menu")
-    menu = pygame.image.load(r"img\MainMenuTemplate.png")
-    loading = pygame.image.load(r"img\LoadingScreen.png")
+    menu = pygame.image.load(r"Projekt_Sudoku/img/MainMenuTemplate.png")
+    loading = pygame.image.load(r"Projekt_Sudoku/img/LoadingScreen.png")
     run = True
     while run:
         screen.blit(menu,(0, 0))
