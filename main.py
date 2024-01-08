@@ -15,7 +15,12 @@ screen_size = (500, 600)
 
 current_platform = 'ios'
 paths = {
-    'windows':{},
+    'windows':{
+        'ui_main_menu': 'img\MainMenuTemplate.png',
+        'ui_loading_screen': 'img\LoadingScreen.png',
+        'game_ui_white': 'img\GameUIWhite.png',
+        'game_ui_dark': 'img\GameUIDark.png'
+    },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
         'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
@@ -25,7 +30,7 @@ paths = {
 }
 
 # Colours
-current_theme = 'dark'
+current_theme = 'white'
 colour_themes = {
     'white': {
         'background_colour': (250, 250, 250),
@@ -41,7 +46,7 @@ colour_themes = {
         'highlited_colour_background': (53, 55, 63),
         'highlited_number_colour': (86, 166, 206),
         'number': (106, 109, 124),
-        'ui': 'Projekt_Sudoku/img/GameUIDark.png'
+        'ui': paths[current_platform]['game_ui_dark']
     }
 }
 #fonts
@@ -211,8 +216,8 @@ def draw_grid(board):
 def main_menu():
     global board_type
     print("Main menu")
-    menu = pygame.image.load(r"Projekt_Sudoku/img/MainMenuTemplate.png")
-    loading = pygame.image.load(r"Projekt_Sudoku/img/LoadingScreen.png")
+    menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+    loading = pygame.image.load(paths[current_platform]['ui_loading_screen'])
     run = True
     while run:
         screen.blit(menu,(0, 0))
