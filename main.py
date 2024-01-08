@@ -232,8 +232,9 @@ def game():
     #variables
     global cords
     global board_type
+    global current_theme
     health = 3
-    ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
+    
     
     if board_type == "last":
         print("Last grid")
@@ -247,9 +248,11 @@ def game():
     run = True
     while run:
         global value
+
         value = 0
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
+        ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
         draw_highlighted_cells()
         draw_grid(board['value'])
         screen.blit(ui, (0, 500)) #draw Game UI
@@ -262,6 +265,19 @@ def game():
                 pos = pygame.mouse.get_pos()
                 if pos[1] <= 500:
                     cords = get_cords(pos)
+                if pos[0] >= 25 and pos[0] <= 100 and pos[1] >= 515 and pos[1] <= 585:
+                    print(current_theme)
+                    if current_theme == 'dark':
+                        print("test")
+                        current_theme = 'white'
+                        print(current_theme)
+                        continue
+                    if current_theme == 'white':
+                        print('test1')
+                        current_theme = 'dark'
+                        continue
+                if pos[0] >= 125 and pos[0] <= 175 and pos[1] >= 525 and pos[1] <=575:
+                    print('pencil')
             if event.type == KEYDOWN:
                 if event.key == pygame.K_1 or event.key == pygame.K_KP1:
                     value = 1
@@ -295,7 +311,7 @@ def game():
         if if_win(board) == True:
             print("Wygrana")
             run = False
-        #test funtion
+        # #test funtion
         # debug_mouse_position()
         
         pygame.display.update()
