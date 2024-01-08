@@ -13,7 +13,7 @@ pygame.init()
 # Main variables
 screen_size = (500, 600)
 
-current_platform = 'ios'
+current_platform = 'windows'
 paths = {
     'windows':{
         'ui_main_menu': 'img\MainMenuTemplate.png',
