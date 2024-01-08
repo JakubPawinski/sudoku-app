@@ -215,6 +215,7 @@ def draw_grid(board):
 
 def main_menu():
     global board_type
+    global current_platform
     print("Main menu")
     menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
     loading = pygame.image.load(paths[current_platform]['ui_loading_screen'])
@@ -256,6 +257,7 @@ def game():
     global cords
     global board_type
     global current_theme
+    global current_platform
     health = 3
     
     
