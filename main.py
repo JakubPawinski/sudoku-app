@@ -68,11 +68,15 @@ def debug_mouse_position():
     print(debug_pos)
 
 def check_platform():
+    #This function checks the current platform and refreshes dictionaries
     global current_platform
     if platform.system() == 'Darwin':
         current_platform = 'ios'
     if platform.system() == 'Windows':
         current_platform = 'windows'
+    #refresh colour_themes dictionary
+    colour_themes['white']['ui'] = paths[current_platform]['game_ui_white']
+    colour_themes['dark']['ui'] = paths[current_platform]['game_ui_dark']
 
 def get_cords(pos):
     #This function gets cords of highlighted cell
@@ -109,7 +113,7 @@ def get_highlighted_box_cords(cords):
         return cords
 
 def draw_highlighted_cells():
-    #This function draw highlited cells
+    #This function draws highlited cells
 
     #Check if it is possible to highlight the cells
     if cords[0] <= 8 and cords[1] <= 8:
@@ -124,12 +128,14 @@ def draw_highlighted_cells():
         pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour'], (cords[0] * grid_gap, cords[1] * grid_gap, grid_gap, grid_gap))
 
 def valid(board, value, cords):
+    #This function checks if it is possible to place player's number into the board
     if board['value'][int(cords[0])][int(cords[1])] == 0 and board['solution'][int(cords[0])][int(cords[1])] == value:
         return True
     else:
         return False
 
 def if_win(board):
+    #This funtion checks if it is the end of the game
     if board['value'] == board['solution']:
         return True
 
@@ -214,6 +220,7 @@ def draw_grid(board):
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * grid_gap, 0), (i * grid_gap, 500), thick)  
 
 def main_menu():
+    #Main menu funtion
     global board_type
     global current_platform
     print("Main menu")
@@ -252,14 +259,15 @@ def main_menu():
         pygame.display.update()
 
 def game():
+    #game funtion
     print("Game")
     #variables
     global cords
     global board_type
     global current_theme
     global current_platform
+    global paths
     health = 3
-    
     
     if board_type == "last":
         print("Last grid")
@@ -269,7 +277,8 @@ def game():
         board = get_sudoku_grid(board_type)
         pprint(board)
 
-
+    print(colour_themes[current_theme]['ui'])
+    print(current_platform)
     run = True
     while run:
         global value
@@ -291,14 +300,10 @@ def game():
                 if pos[1] <= 500:
                     cords = get_cords(pos)
                 if pos[0] >= 25 and pos[0] <= 100 and pos[1] >= 515 and pos[1] <= 585:
-                    print(current_theme)
                     if current_theme == 'dark':
-                        print("test")
                         current_theme = 'white'
-                        print(current_theme)
                         continue
                     if current_theme == 'white':
-                        print('test1')
                         current_theme = 'dark'
                         continue
                 if pos[0] >= 125 and pos[0] <= 175 and pos[1] >= 525 and pos[1] <=575:
