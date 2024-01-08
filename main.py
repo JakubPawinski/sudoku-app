@@ -5,6 +5,7 @@ from pprint import pprint
 import json 
 import sys
 import time
+import platform
 
 # Pygame init
 pygame.init()
@@ -12,6 +13,16 @@ pygame.init()
 # Main variables
 screen_size = (500, 600)
 
+current_platform = 'ios'
+paths = {
+    'windows':{},
+    'ios':{
+        'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
+        'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
+        'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
+        'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png'
+    }
+}
 
 # Colours
 current_theme = 'dark'
@@ -22,7 +33,7 @@ colour_themes = {
         'highlited_colour_background': (230, 230, 230),
         'highlited_number_colour': (118, 171, 246),
         'number': (0, 0, 0),
-        'ui': 'Projekt_Sudoku/img/GameUIWhite.png'
+        'ui': paths[current_platform]['game_ui_white']
     },
     'dark': {
         'background_colour': (40, 41, 47),
@@ -50,6 +61,13 @@ pygame.display.set_caption("Sudoku")
 def debug_mouse_position():
     debug_pos = pygame.mouse.get_pos()
     print(debug_pos)
+
+def check_platform():
+    global current_platform
+    if platform.system() == 'Darwin':
+        current_platform = 'ios'
+    if platform.system() == 'Windows':
+        current_platform = 'windows'
 
 def get_cords(pos):
     #This function gets cords of highlighted cell
@@ -319,6 +337,8 @@ def game():
 
 def main():
     # The main project funtion
+    check_platform()
+    print(current_platform)
     main_menu()
     game()
 
