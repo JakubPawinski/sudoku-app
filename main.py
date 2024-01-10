@@ -13,19 +13,25 @@ pygame.init()
 # Main variables
 screen_size = (500, 600)
 
+play_again = False
+end_message = ''
 current_platform = 'windows'
 paths = {
     'windows':{
         'ui_main_menu': 'img\MainMenuTemplate.png',
         'ui_loading_screen': 'img\LoadingScreen.png',
         'game_ui_white': 'img\GameUIWhite.png',
-        'game_ui_dark': 'img\GameUIDark.png'
+        'game_ui_dark': 'img\GameUIDark.png',
+        'end_screen': 'img\EndScreen.png',
+        'boards': 'boards.json'
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
         'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
         'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
-        'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png'
+        'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
+        'end_screen': 'Projekt_Sudoku/img/EndScreen.png',
+        'boards': 'Projekt_Sudoku/boards.json'
     }
 }
 
@@ -49,8 +55,13 @@ colour_themes = {
         'ui': paths[current_platform]['game_ui_dark']
     }
 }
+end_message_colours = {
+    'victory': (60, 201, 67),
+    'lost': (175, 19, 19)
+}
 #fonts
 font_grid = pygame.font.SysFont(None, 40)
+font_end_message = pygame.font.SysFont(None, 60)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -66,6 +77,12 @@ pygame.display.set_caption("Sudoku")
 def debug_mouse_position():
     debug_pos = pygame.mouse.get_pos()
     print(debug_pos)
+
+def check_score(end_message):
+    if end_message == 'victory':
+        return (160, 100)
+    if end_message == 'lost':
+        return (195, 100)
 
 def check_platform():
     #This function checks the current platform and refreshes dictionaries
@@ -161,7 +178,7 @@ def get_sudoku_grid(difficulty):
             time.sleep(0.1)
         else:
             get_asked_difficulty = True
-            with open("boards.json", 'r') as json_file:
+            with open(paths[current_platform]['boards'], 'r') as json_file:
                 json_data = json.load(json_file)
             data = json_data
             data = {'value': data[difficulty]['newboard']['grids'][0]['value'], 'solution': data[difficulty]['newboard']['grids'][0]['solution']}
@@ -267,6 +284,7 @@ def game():
     global current_theme
     global current_platform
     global paths
+    global end_message
     health = 3
     
     if board_type == "last":
@@ -336,23 +354,62 @@ def game():
                 health -= 1
         if health == 0:
             print('Koniec')
+            end_message = "lost"
             run = False
 
         if if_win(board) == True:
             print("Wygrana")
+            end_message = "victory"
             run = False
         # #test funtion
         # debug_mouse_position()
         
         pygame.display.update()
 
+def end():
+    global end_message
+    global play_again
+    print("End screen")
+    end_screen = pygame.image.load(paths[current_platform]['end_screen'])
+
+    end_text = font_end_message.render(end_message.upper(), 1, end_message_colours[end_message])
+
+
+    run = True
+    while run:
+        debug_mouse_position()
+        screen.blit(end_screen,(0, 0))
+        screen.blit(end_text, check_score(end_message))
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+                pos = pygame.mouse.get_pos()
+                if pos[0] > 115 and pos[0] < 385 and pos[1] > 440 and pos[1] < 510:
+                    print("Play again")
+                    run = False
+                    play_again = True
+                    main()
+        pygame.display.update()
 
 def main():
+    global play_again
     # The main project funtion
     check_platform()
     print(current_platform)
-    main_menu()
-    game()
+
+    run = True
+    while run:
+        play_again = False
+        main_menu()
+        game()
+        end()
+        if play_again == True:
+            continue
+        if play_again == False:
+            break
 
 if __name__ == "__main__":
     main()
