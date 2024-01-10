@@ -6,7 +6,7 @@ import json
 import sys
 import time
 import platform
-
+import math
 # Pygame init
 pygame.init()
 
@@ -62,6 +62,7 @@ end_message_colours = {
 #fonts
 font_grid = pygame.font.SysFont(None, 40)
 font_end_message = pygame.font.SysFont(None, 60)
+font_timer = pygame.font.SysFont(None, 80)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -158,7 +159,6 @@ def if_win(board):
 
 def get_sudoku_grid(searched_board):
     # The function gets the sudoku board from api and returns both the sudoku board and its solution
-    print(searched_board)
     if searched_board == "last":
         with open(paths[current_platform]['boards'], 'r') as json_file:
             json_data = json.load(json_file)
@@ -168,7 +168,7 @@ def get_sudoku_grid(searched_board):
     get_asked_difficulty = False
 
     while not get_asked_difficulty:
-        api_url = 'https://sudoku-api.vercel.app/api/dosuku'
+        api_url = 'https://sudoku-api.vercel.app/api/dosuku!!!'
         response = requests.get(api_url)
 
         if response.status_code == 200:
@@ -178,7 +178,7 @@ def get_sudoku_grid(searched_board):
             if data['newboard']['grids'][0]['difficulty'] == searched_board:
                 get_asked_difficulty = True
                 print('===============')
-                data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution']}
+                data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution'], 'difficulty': data['newboard']['grids'][0]['difficulty']}
                 return data
             time.sleep(0.1)
         else:
@@ -186,7 +186,7 @@ def get_sudoku_grid(searched_board):
             with open(paths[current_platform]['boards'], 'r') as json_file:
                 json_data = json.load(json_file)
             data = json_data
-            data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution']}
+            data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution'], 'difficulty': data[searched_board]['newboard']['grids'][0]['difficulty']}
             pprint(data)
             return data
         
@@ -241,6 +241,32 @@ def draw_grid(board):
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (0, i * grid_gap), (500, i * grid_gap), thick)
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * grid_gap, 0), (i * grid_gap, 500), thick)  
 
+def save_game(board):
+    print("Saved")
+    with open(paths[current_platform]['boards'], 'r') as json_file:
+        json_data = json.load(json_file)
+    
+    json_data["last"] = board
+
+    with open(paths[current_platform]['boards'], 'w') as json_file:
+        json.dump(json_data, json_file)
+
+def draw_time(start_ticks):
+    time = (pygame.time.get_ticks() - start_ticks) / 1000
+    time = math.floor(time)
+    
+    seconds = time % 60 
+    minutes = time // 60
+    if seconds <= 9:
+        seconds = '0' + str(seconds)
+    if minutes <= 9:
+        minutes = '0' + str(minutes)
+
+    text = font_timer.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
+    screen.blit(text, (310, 522))
+    return (minutes, seconds)
+
+
 def main_menu():
     #Main menu funtion
     global board_type
@@ -293,11 +319,16 @@ def game():
     global paths
     global end_message
     health = 3
-    
-    board = get_sudoku_grid(board_type)
+    clock = pygame.time.Clock()
 
-    print(colour_themes[current_theme]['ui'])
-    print(current_platform)
+
+
+    if board_type == "last":
+        board = test_grid
+    else:
+        board = get_sudoku_grid(board_type)
+
+    start_ticks = pygame.time.get_ticks()
     run = True
     while run:
         global value
@@ -314,6 +345,7 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                save_game(board)
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -366,7 +398,10 @@ def game():
             run = False
         # #test funtion
         # debug_mouse_position()
-        
+            
+        #Time counter
+        clock.tick(60)
+        current_time = draw_time(start_ticks) #Saved the current time and display it
         pygame.display.update()
 
 def end():
