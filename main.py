@@ -156,10 +156,15 @@ def if_win(board):
     if board['value'] == board['solution']:
         return True
 
-def get_sudoku_grid(difficulty):
+def get_sudoku_grid(searched_board):
     # The function gets the sudoku board from api and returns both the sudoku board and its solution
-    print(difficulty)
-
+    print(searched_board)
+    if searched_board == "last":
+        with open(paths[current_platform]['boards'], 'r') as json_file:
+            json_data = json.load(json_file)
+        data = json_data
+        return data['last']
+    
     get_asked_difficulty = False
 
     while not get_asked_difficulty:
@@ -170,7 +175,7 @@ def get_sudoku_grid(difficulty):
             pprint(response)
             data = response.json()
             pprint(data)
-            if data['newboard']['grids'][0]['difficulty'] == difficulty:
+            if data['newboard']['grids'][0]['difficulty'] == searched_board:
                 get_asked_difficulty = True
                 print('===============')
                 data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution']}
@@ -181,7 +186,7 @@ def get_sudoku_grid(difficulty):
             with open(paths[current_platform]['boards'], 'r') as json_file:
                 json_data = json.load(json_file)
             data = json_data
-            data = {'value': data[difficulty]['newboard']['grids'][0]['value'], 'solution': data[difficulty]['newboard']['grids'][0]['solution']}
+            data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution']}
             pprint(data)
             return data
         
@@ -250,6 +255,8 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
 
@@ -287,13 +294,7 @@ def game():
     global end_message
     health = 3
     
-    if board_type == "last":
-        print("Last grid")
-        board = test_grid
-        pprint(board)
-    else:
-        board = get_sudoku_grid(board_type)
-        pprint(board)
+    board = get_sudoku_grid(board_type)
 
     print(colour_themes[current_theme]['ui'])
     print(current_platform)
@@ -313,6 +314,8 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 if pos[1] <= 500:
@@ -384,8 +387,9 @@ def end():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                run = False
                 pos = pygame.mouse.get_pos()
                 if pos[0] > 115 and pos[0] < 385 and pos[1] > 440 and pos[1] < 510:
                     print("Play again")
@@ -414,4 +418,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-pygame.quit()
