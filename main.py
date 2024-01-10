@@ -168,7 +168,7 @@ def get_sudoku_grid(searched_board):
     get_asked_difficulty = False
 
     while not get_asked_difficulty:
-        api_url = 'https://sudoku-api.vercel.app/api/dosuku!!!'
+        api_url = 'https://sudoku-api.vercel.app/api/dosuku'
         response = requests.get(api_url)
 
         if response.status_code == 200:
@@ -323,10 +323,10 @@ def game():
 
 
 
-    if board_type == "last":
-        board = test_grid
-    else:
-        board = get_sudoku_grid(board_type)
+    # if board_type == "last":
+    #     board = test_grid
+    # else:
+    board = get_sudoku_grid(board_type)
 
     start_ticks = pygame.time.get_ticks()
     run = True
