@@ -57,7 +57,7 @@ colour_themes = {
 }
 end_message_colours = {
     'victory': (60, 201, 67),
-    'lost': (175, 19, 19)
+    'defeat': (175, 19, 19)
 }
 #fonts
 font_grid = pygame.font.SysFont(None, 40)
@@ -82,8 +82,8 @@ def debug_mouse_position():
 def check_score(end_message):
     if end_message == 'victory':
         return (160, 100)
-    if end_message == 'lost':
-        return (195, 100)
+    if end_message == 'defeat':
+        return (168, 100)
 
 def check_platform():
     #This function checks the current platform and refreshes dictionaries
@@ -241,20 +241,21 @@ def draw_grid(board):
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (0, i * grid_gap), (500, i * grid_gap), thick)
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * grid_gap, 0), (i * grid_gap, 500), thick)  
 
-def save_game(board):
+def save_game(board, time):
     print("Saved")
     with open(paths[current_platform]['boards'], 'r') as json_file:
         json_data = json.load(json_file)
     
     json_data["last"] = board
+    json_data["last"].update({"time": time})
 
     with open(paths[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
 
-def draw_time(start_ticks):
+def draw_time(start_ticks, recent_time=0):
     time = (pygame.time.get_ticks() - start_ticks) / 1000
     time = math.floor(time)
-    
+    time += recent_time
     seconds = time % 60 
     minutes = time // 60
     if seconds <= 9:
@@ -264,7 +265,7 @@ def draw_time(start_ticks):
 
     text = font_timer.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
     screen.blit(text, (310, 522))
-    return (minutes, seconds)
+    return (time)
 
 
 def main_menu():
@@ -327,6 +328,7 @@ def game():
     #     board = test_grid
     # else:
     board = get_sudoku_grid(board_type)
+    pprint(board)
 
     start_ticks = pygame.time.get_ticks()
     run = True
@@ -345,7 +347,7 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                save_game(board)
+                save_game(board, current_time)
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -389,7 +391,7 @@ def game():
                 health -= 1
         if health == 0:
             print('Koniec')
-            end_message = "lost"
+            end_message = "defeat"
             run = False
 
         if if_win(board) == True:
@@ -401,7 +403,10 @@ def game():
             
         #Time counter
         clock.tick(60)
-        current_time = draw_time(start_ticks) #Saved the current time and display it
+        if 'time' in board:
+            current_time = draw_time(start_ticks, board['time'])  #Saved the current time and display it
+        else:
+            current_time = draw_time(start_ticks) 
         pygame.display.update()
 
 def end():
