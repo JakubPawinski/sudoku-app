@@ -252,6 +252,9 @@ def save_game(board, time):
     with open(paths[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
 
+def save_score():
+    print("Score saved")
+
 def draw_time(start_ticks, recent_time=0):
     time = (pygame.time.get_ticks() - start_ticks) / 1000
     time = math.floor(time)
@@ -397,6 +400,7 @@ def game():
         if if_win(board) == True:
             print("Wygrana")
             end_message = "victory"
+            save_score(board, current_time)
             run = False
         # #test funtion
         # debug_mouse_position()
