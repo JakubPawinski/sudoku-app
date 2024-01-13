@@ -23,7 +23,8 @@ paths = {
         'game_ui_white': 'img\GameUIWhite.png',
         'game_ui_dark': 'img\GameUIDark.png',
         'end_screen': 'img\EndScreen.png',
-        'boards': 'boards.json'
+        'boards': 'boards.json',
+        'health': {3: 'img\heart_100.png', 2: 'img\heart_66.png', 1: 'img\heart_33.png'}
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
@@ -31,7 +32,8 @@ paths = {
         'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
         'end_screen': 'Projekt_Sudoku/img/EndScreen.png',
-        'boards': 'Projekt_Sudoku/boards.json'
+        'boards': 'Projekt_Sudoku/boards.json',
+        'health': {3: '', 2: ' ', 1: ' '}
     }
 }
 
@@ -270,6 +272,11 @@ def draw_time(start_ticks, recent_time=0):
     screen.blit(text, (310, 522))
     return (time)
 
+def draw_health(health):
+    print(health)
+
+    img = pygame.image.load(paths[current_platform]['health'][health])
+    screen.blit(img,(220, 520))
 
 def main_menu():
     #Main menu funtion
@@ -337,14 +344,16 @@ def game():
     run = True
     while run:
         global value
-
+        debug_mouse_position()
         value = 0
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
         ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
         draw_highlighted_cells()
         draw_grid(board['value'])
+        
         screen.blit(ui, (0, 500)) #draw Game UI
+        draw_health(health)
 
 
         for event in pygame.event.get():
