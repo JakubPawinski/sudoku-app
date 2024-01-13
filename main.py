@@ -399,6 +399,7 @@ def game():
     global current_platform
     global paths
     global end_message
+    global notes
     health = 3
     clock = pygame.time.Clock()
     is_pencil_clicked = False
@@ -478,6 +479,7 @@ def game():
                 print(value)  
                 if valid(board, value, cords) == True:
                     board['value'][int(cords[0])][int(cords[1])] = value
+                    notes[int(cords[0])][int(cords[1])] = [0] #Reset
                 else:
                     health -= 1
             if is_pencil_clicked == True:
