@@ -34,8 +34,8 @@ paths = {
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
         'end_screen': 'Projekt_Sudoku/img/EndScreen.png',
         'boards': 'Projekt_Sudoku/boards.json',
-        'health': {3: '', 2: ' ', 1: ' '},
-        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'}
+        'health': {3: 'Projekt_Sudoku/img/heart_100.png', 2: 'Projekt_Sudoku/img/heart_66.png', 1: 'Projekt_Sudoku/img/heart_33.png'},
+        'pencil': {True: 'Projekt_Sudoku/img/pencil_clicked.png', False: 'Projekt_Sudoku/img/pencil_unclicked.png'}
     }
 }
 
@@ -67,7 +67,7 @@ end_message_colours = {
 font_grid = pygame.font.SysFont(None, 40)
 font_end_message = pygame.font.SysFont(None, 60)
 font_timer = pygame.font.SysFont(None, 80)
-font_notes = pygame.font.SysFont(None, 5)
+font_notes = pygame.font.SysFont(None, 25)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -311,17 +311,17 @@ def draw_notes():
     global notes
     global cords
        #This loop draws numbers
-    for i in notes:
-        for j in i:
+    for i in range(9):
+        for j in range(9):
             #Draw if highlited number != board number
-            # if notes[i][j] == 0:
-            #     continue
-            # else:
-            for k in j:
-                if k != 0:
-                    text1 = font_notes.render(str(k), 1, colour_themes[current_theme]['number'])
-                    
-                    screen.blit(text1, ( (int(cords[0]) * grid_gap) + (int(cords[1] * (grid_gap/5)) ) + 20, (int(cords[1] * grid_gap/5) + 15)))
+            if notes[i][j] == [0]:
+                continue
+            else:
+                print(notes[i][j])
+                for k in notes[i][j]:
+                    if k != 0:
+                        text1 = font_notes.render(str(k), 1, colour_themes[current_theme]['number'])
+                        screen.blit(text1, ( (i * grid_gap) + 20, (j* grid_gap) + 15))
                     
 
                 # #Draw if highlited number == board number
