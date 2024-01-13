@@ -10,6 +10,7 @@ import math
 # Pygame init
 pygame.init()
 
+
 # Main variables
 screen_size = (500, 600)
 
@@ -63,11 +64,6 @@ end_message_colours = {
     'victory': (60, 201, 67),
     'defeat': (175, 19, 19)
 }
-#fonts
-font_grid = pygame.font.SysFont(None, 40)
-font_end_message = pygame.font.SysFont(None, 60)
-font_timer = pygame.font.SysFont(None, 80)
-font_notes = pygame.font.SysFont(None, 25)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -86,6 +82,14 @@ notes = [
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
+
+#fonts
+font_grid = pygame.font.SysFont(None, 40)
+font_end_message = pygame.font.SysFont(None, 60)
+font_timer = pygame.font.SysFont(None, 80)
+font_notes = pygame.font.SysFont(None, 16)
+
+
 # Screen init
 screen = pygame.display.set_mode((screen_size))
 pygame.display.set_caption("Sudoku")
@@ -301,15 +305,14 @@ def draw_pencil_button(is_clicked):
 
 def add_notes(value, cords):
     global notes
-    print('value: ', value, 'cords: ', cords)
     if not value in notes[int(cords[0])][int(cords[1])]:
         notes[int(cords[0])][int(cords[1])].append(value)
         notes[int(cords[0])][int(cords[1])].sort()
-    pprint(notes)
 
-def draw_notes():
+def draw_notes(board):
     global notes
     global cords
+
        #This loop draws numbers
     for i in range(9):
         for j in range(9):
@@ -317,11 +320,23 @@ def draw_notes():
             if notes[i][j] == [0]:
                 continue
             else:
-                print(notes[i][j])
-                for k in notes[i][j]:
-                    if k != 0:
-                        text1 = font_notes.render(str(k), 1, colour_themes[current_theme]['number'])
-                        screen.blit(text1, ( (i * grid_gap) + 20, (j* grid_gap) + 15))
+                horizontal_gap = 0
+                vertical_gap = 0
+                for number in notes[i][j]:
+                    
+                    if number != 0:
+                        if board[int(cords[0])][int(cords[1])] == number:
+                            text1 = font_notes.render(str(number), 1, colour_themes[current_theme]['highlited_number_colour'])
+                        else:
+                            text1 = font_notes.render(str(number), 1, colour_themes[current_theme]['number'])
+                        screen.blit(text1, ( (i * grid_gap) + ( horizontal_gap * (grid_gap)/3) + 5, (j* grid_gap) + ( vertical_gap * (grid_gap)/3 ) + 4))
+                        horizontal_gap += 1
+
+
+
+                        if horizontal_gap == 3:
+                            horizontal_gap = 0
+                            vertical_gap += 1
                     
 
                 # #Draw if highlited number == board number
@@ -405,7 +420,7 @@ def game():
         ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
         draw_highlighted_cells()
         draw_grid(board['value'])
-        draw_notes()
+        draw_notes(board['value'])
 
         
 
@@ -466,7 +481,6 @@ def game():
                 else:
                     health -= 1
             if is_pencil_clicked == True:
-                print('x')
                 add_notes(value, cords)
 
         if health == 0:
