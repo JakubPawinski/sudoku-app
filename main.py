@@ -24,7 +24,8 @@ paths = {
         'game_ui_dark': 'img\GameUIDark.png',
         'end_screen': 'img\EndScreen.png',
         'boards': 'boards.json',
-        'health': {3: 'img\heart_100.png', 2: 'img\heart_66.png', 1: 'img\heart_33.png'}
+        'health': {3: 'img\heart_100.png', 2: 'img\heart_66.png', 1: 'img\heart_33.png'},
+        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'}
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
@@ -33,7 +34,8 @@ paths = {
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
         'end_screen': 'Projekt_Sudoku/img/EndScreen.png',
         'boards': 'Projekt_Sudoku/boards.json',
-        'health': {3: '', 2: ' ', 1: ' '}
+        'health': {3: '', 2: ' ', 1: ' '},
+        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'}
     }
 }
 
@@ -65,6 +67,7 @@ end_message_colours = {
 font_grid = pygame.font.SysFont(None, 40)
 font_end_message = pygame.font.SysFont(None, 60)
 font_timer = pygame.font.SysFont(None, 80)
+font_notes = pygame.font.SysFont(None, 5)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -72,6 +75,17 @@ cords = [0, 0]
 board_type = None
 value = 0
 
+notes = [
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
+]
 # Screen init
 screen = pygame.display.set_mode((screen_size))
 pygame.display.set_caption("Sudoku")
@@ -273,10 +287,51 @@ def draw_time(start_ticks, recent_time=0):
     return (time)
 
 def draw_health(health):
-    print(health)
 
     img = pygame.image.load(paths[current_platform]['health'][health])
     screen.blit(img,(220, 520))
+
+def draw_pencil_button(is_clicked):
+    clicked = pygame.image.load(paths[current_platform]['pencil'][is_clicked])
+    unclicked = pygame.image.load(paths[current_platform]['pencil'][is_clicked])
+    if is_clicked == True:
+        screen.blit(clicked, (125, 525))
+    if is_clicked == False:
+        screen.blit(unclicked, (125, 525))
+
+def add_notes(value, cords):
+    global notes
+    print('value: ', value, 'cords: ', cords)
+    if not value in notes[int(cords[0])][int(cords[1])]:
+        notes[int(cords[0])][int(cords[1])].append(value)
+        notes[int(cords[0])][int(cords[1])].sort()
+    pprint(notes)
+
+def draw_notes():
+    global notes
+    global cords
+       #This loop draws numbers
+    for i in notes:
+        for j in i:
+            #Draw if highlited number != board number
+            # if notes[i][j] == 0:
+            #     continue
+            # else:
+            for k in j:
+                if k != 0:
+                    text1 = font_notes.render(str(k), 1, colour_themes[current_theme]['number'])
+                    
+                    screen.blit(text1, ( (int(cords[0]) * grid_gap) + (int(cords[1] * (grid_gap/5)) ) + 20, (int(cords[1] * grid_gap/5) + 15)))
+                    
+
+                # #Draw if highlited number == board number
+                # if notes[i][j] == notes[int(cords[0])][int(cords[1])] and notes[i][j] != 0 and cords[1] <= 8:
+                #     text1 = font_grid.render(str(notes[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
+                #     screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                #     if i == cords[0] and cords[1] == j:
+                #         text1 = font_grid.render(str(notes[i][j]), 1, colour_themes[current_theme]['number'])
+                #         screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
+                #         # print(i, j, board[i][j], "cords", cords) 
 
 def main_menu():
     #Main menu funtion
@@ -331,7 +386,7 @@ def game():
     global end_message
     health = 3
     clock = pygame.time.Clock()
-
+    is_pencil_clicked = False
 
 
     # if board_type == "last":
@@ -344,16 +399,19 @@ def game():
     run = True
     while run:
         global value
-        debug_mouse_position()
         value = 0
         #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
         screen.fill(colour_themes[current_theme]['background_colour'])
         ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
         draw_highlighted_cells()
         draw_grid(board['value'])
+        draw_notes()
+
         
+
         screen.blit(ui, (0, 500)) #draw Game UI
         draw_health(health)
+        draw_pencil_button(is_pencil_clicked)
 
 
         for event in pygame.event.get():
@@ -375,6 +433,11 @@ def game():
                         continue
                 if pos[0] >= 125 and pos[0] <= 175 and pos[1] >= 525 and pos[1] <=575:
                     print('pencil')
+                    if is_pencil_clicked == True:
+                        is_pencil_clicked = False
+                    elif is_pencil_clicked == False:
+                        is_pencil_clicked = True
+                    
             if event.type == KEYDOWN:
                 if event.key == pygame.K_1 or event.key == pygame.K_KP1:
                     value = 1
@@ -395,12 +458,17 @@ def game():
                 if event.key == pygame.K_9 or event.key == pygame.K_KP9:
                     value = 9
         
-        if value != 0 and board['value'][int(cords[0])][int(cords[1])] == 0:
-            print(value)  
-            if valid(board, value, cords) == True:
-                board['value'][int(cords[0])][int(cords[1])] = value
-            else:
-                health -= 1
+        if (value != 0 and board['value'][int(cords[0])][int(cords[1])] == 0):
+            if is_pencil_clicked == False:
+                print(value)  
+                if valid(board, value, cords) == True:
+                    board['value'][int(cords[0])][int(cords[1])] = value
+                else:
+                    health -= 1
+            if is_pencil_clicked == True:
+                print('x')
+                add_notes(value, cords)
+
         if health == 0:
             print('Koniec')
             end_message = "defeat"
