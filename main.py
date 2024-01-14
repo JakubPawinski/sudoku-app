@@ -272,8 +272,10 @@ def save_game(board, time):
     with open(paths[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
 
-def save_score():
+def save_score(board, time):
     print("Score saved")
+    print(board)
+    print(time)
 
 def draw_time(start_ticks, recent_time=0):
     time = (pygame.time.get_ticks() - start_ticks) / 1000
@@ -405,10 +407,21 @@ def game():
     is_pencil_clicked = False
 
 
-    # if board_type == "last":
-    #     board = test_grid
-    # else:
-    board = get_sudoku_grid(board_type)
+    notes = [
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
+    [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
+]
+    if board_type == "last":
+        board = test_grid
+    else:
+        board = get_sudoku_grid(board_type)
     pprint(board)
 
     start_ticks = pygame.time.get_ticks()
@@ -517,7 +530,7 @@ def end():
 
     run = True
     while run:
-        debug_mouse_position()
+        # debug_mouse_position()
         screen.blit(end_screen,(0, 0))
         screen.blit(end_text, check_score(end_message))
 
