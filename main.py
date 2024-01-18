@@ -15,11 +15,15 @@ pygame.init()
 screen_size = (500, 600)
 
 play_again = False
+
+last_game_possible = True
+
 end_message = ''
 current_platform = 'windows'
 paths = {
     'windows':{
         'ui_main_menu': 'img\MainMenuTemplate.png',
+        'ui_main_menu_disabledLastGame': 'img\MainMenuTemplateLastGameDisabled.png',
         'ui_loading_screen': 'img\LoadingScreen.png',
         'game_ui_white': 'img\GameUIWhite.png',
         'game_ui_dark': 'img\GameUIDark.png',
@@ -30,6 +34,7 @@ paths = {
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
+        'ui_main_menu_disabledLastGame': '',
         'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
         'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
@@ -261,13 +266,14 @@ def draw_grid(board):
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (0, i * grid_gap), (500, i * grid_gap), thick)
         pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * grid_gap, 0), (i * grid_gap, 500), thick)  
 
-def save_game(board, time):
+def save_game(board, time, health):
     print("Saved")
     with open(paths[current_platform]['boards'], 'r') as json_file:
         json_data = json.load(json_file)
     
     json_data["last"] = board
     json_data["last"].update({"time": time})
+    json_data["last"].update({"health": health})
 
     with open(paths[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
@@ -354,8 +360,15 @@ def main_menu():
     #Main menu funtion
     global board_type
     global current_platform
+    global last_game_possible
     print("Main menu")
-    menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+    if last_game_possible == True:
+        menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+    elif last_game_possible == False:
+        print("lastGamedisabled")
+        menu = pygame.image.load(paths[current_platform]['ui_main_menu_disabledLastGame'])
+        # menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+
     loading = pygame.image.load(paths[current_platform]['ui_loading_screen'])
     run = True
     while run:
@@ -369,7 +382,7 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
 
-                if pos[0] > 115 and pos[0] < 380 and pos[1] > 145 and pos[1] < 215:
+                if pos[0] > 115 and pos[0] < 380 and pos[1] > 145 and pos[1] < 215 and last_game_possible == True:
                     board_type = "last"
                     print(board_type)
                     screen.blit(loading,(0, 0))
@@ -402,7 +415,9 @@ def game():
     global paths
     global end_message
     global notes
-    health = 3
+    global last_game_possible
+    
+
     clock = pygame.time.Clock()
     is_pencil_clicked = False
 
@@ -423,6 +438,11 @@ def game():
     # else:
     board = get_sudoku_grid(board_type)
     pprint(board)
+    
+    if board_type == "last":
+        health = board['health']
+    else:
+        health = 3
 
     start_ticks = pygame.time.get_ticks()
     run = True
@@ -446,7 +466,7 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                save_game(board, current_time)
+                save_game(board, current_time, health)
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -500,11 +520,13 @@ def game():
 
         if health == 0:
             print('Koniec')
+            last_game_possible = False
             end_message = "defeat"
             run = False
 
         if if_win(board) == True:
             print("Wygrana")
+            last_game_possible = False
             end_message = "victory"
             save_score(board, current_time)
             run = False
