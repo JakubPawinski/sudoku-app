@@ -418,10 +418,10 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    if board_type == "last":
-        board = test_grid
-    else:
-        board = get_sudoku_grid(board_type)
+    # if board_type == "last":
+    #     board = test_grid
+    # else:
+    board = get_sudoku_grid(board_type)
     pprint(board)
 
     start_ticks = pygame.time.get_ticks()
