@@ -7,6 +7,8 @@ import sys
 import time
 import platform
 import math
+import pandas as pd
+from datetime import date
 # Pygame init
 pygame.init()
 
@@ -30,7 +32,8 @@ paths = {
         'end_screen': 'img\EndScreen.png',
         'boards': 'boards.json',
         'health': {3: 'img\heart_100.png', 2: 'img\heart_66.png', 1: 'img\heart_33.png'},
-        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'}
+        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'},
+        'resultsDataBase' : 'results.csv'
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
@@ -41,7 +44,8 @@ paths = {
         'end_screen': 'Projekt_Sudoku/img/EndScreen.png',
         'boards': 'Projekt_Sudoku/boards.json',
         'health': {3: 'Projekt_Sudoku/img/heart_100.png', 2: 'Projekt_Sudoku/img/heart_66.png', 1: 'Projekt_Sudoku/img/heart_33.png'},
-        'pencil': {True: 'Projekt_Sudoku/img/pencil_clicked.png', False: 'Projekt_Sudoku/img/pencil_unclicked.png'}
+        'pencil': {True: 'Projekt_Sudoku/img/pencil_clicked.png', False: 'Projekt_Sudoku/img/pencil_unclicked.png'},
+        'resultsDataBase' : 'xxxxxxxxxxxxxxxxxxxx'
     }
 }
 
@@ -234,7 +238,10 @@ test_grid ={
               [6, 4, 5, 8, 1, 7, 2, 3, 9],
               [5, 1, 4, 9, 7, 8, 6, 2, 3],
               [9, 7, 6, 2, 3, 1, 4, 5, 8],
-              [2, 8, 3, 6, 5, 4, 9, 7, 1]]
+              [2, 8, 3, 6, 5, 4, 9, 7, 1]],
+        'health': 3,
+        'difficulty': 'Medium'
+
 }
 
 def draw_grid(board):
@@ -278,10 +285,25 @@ def save_game(board, time, health):
     with open(paths[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
 
-def save_score(board, time):
-    print("Score saved")
-    print(board)
-    print(time)
+def count_score(difficulty, time, health):
+    if difficulty == "Easy":
+        difficulty_level = 1
+    elif difficulty == "Medium":
+        difficulty_level = 2
+    elif difficulty == "Hard":
+        difficulty_level = 3
+    score = int(-1 * (0.3 * difficulty_level / health * time) + 1000)
+    if score >= 0:
+        return score
+    else:
+        return 0
+
+def save_score(board, time, health):
+    CsvFile = pd.read_csv(paths[current_platform]['resultsDataBase'])
+    new_row = {'Date': date.today(), 'DifficultyLevel': board['difficulty'], 'LivesRemaining': health, 'Time': time, 'Score': count_score(board['difficulty'], time, health)}
+    CsvFile.loc[len(CsvFile)] = new_row
+    CsvFile.to_csv(paths[current_platform]['resultsDataBase'], index=False)
+    print("Score saved", new_row)
 
 def draw_time(start_ticks, recent_time=0):
     time = (pygame.time.get_ticks() - start_ticks) / 1000
@@ -433,10 +455,10 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    # if board_type == "last":
-    #     board = test_grid
-    # else:
-    board = get_sudoku_grid(board_type)
+    if board_type == "last":
+        board = test_grid
+    else:
+        board = get_sudoku_grid(board_type)
     pprint(board)
     
     if board_type == "last":
@@ -528,7 +550,7 @@ def game():
             print("Wygrana")
             last_game_possible = False
             end_message = "victory"
-            save_score(board, current_time)
+            save_score(board, current_time, health)
             run = False
         # #test funtion
         # debug_mouse_position()
