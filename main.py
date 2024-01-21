@@ -17,7 +17,7 @@ pygame.init()
 screen_size = (500, 600)
 
 play_again = False
-
+last_game_score = 0
 last_game_possible = True
 
 end_message = ''
@@ -73,6 +73,13 @@ end_message_colours = {
     'victory': (60, 201, 67),
     'defeat': (175, 19, 19)
 }
+difficulty_colors = {
+    'Easy': (41, 226, 111),
+    'Medium': (226, 167, 41),
+    'Hard': (212, 83, 29)
+}
+
+black = (0, 0, 0)
 
 #global variables
 grid_gap = screen_size[0]/9
@@ -97,7 +104,8 @@ font_grid = pygame.font.SysFont(None, 40)
 font_end_message = pygame.font.SysFont(None, 60)
 font_timer = pygame.font.SysFont(None, 80)
 font_notes = pygame.font.SysFont(None, 16)
-
+font_last_game_score = pygame.font.SysFont(None, 40)
+font_best_scores = pygame.font.SysFont(None, 26)
 
 # Screen init
 screen = pygame.display.set_mode((screen_size))
@@ -286,6 +294,7 @@ def save_game(board, time, health):
         json.dump(json_data, json_file)
 
 def count_score(difficulty, time, health):
+    global last_game_score
     if difficulty == "Easy":
         difficulty_level = 1
     elif difficulty == "Medium":
@@ -293,6 +302,7 @@ def count_score(difficulty, time, health):
     elif difficulty == "Hard":
         difficulty_level = 3
     score = int(-1 * (0.3 * difficulty_level / health * time) + 1000)
+    last_game_score = score
     if score >= 0:
         return score
     else:
@@ -304,6 +314,19 @@ def save_score(board, time, health):
     CsvFile.loc[len(CsvFile)] = new_row
     CsvFile.to_csv(paths[current_platform]['resultsDataBase'], index=False)
     print("Score saved", new_row)
+
+def get_score_by_difficulty(difficulty):
+
+    CsvFile = pd.read_csv(paths[current_platform]['resultsDataBase']).sort_values(by=['DifficultyLevel', 'Score'], ascending=[False, False])
+    if difficulty == "Easy":
+        easy_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Easy'].iloc[0]
+        return easy_row['Score']
+    if difficulty == "Medium":
+        medium_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Medium'].iloc[0]
+        return medium_row['Score']
+    if difficulty == "Hard":
+        hard_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Hard'].iloc[0]
+        return hard_row['Score']
 
 def draw_time(start_ticks, recent_time=0):
     time = (pygame.time.get_ticks() - start_ticks) / 1000
@@ -377,6 +400,18 @@ def draw_notes(board):
                 #         text1 = font_grid.render(str(notes[i][j]), 1, colour_themes[current_theme]['number'])
                 #         screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
                 #         # print(i, j, board[i][j], "cords", cords) 
+
+def draw_last_game_score():
+
+    score_text = font_last_game_score.render(str(last_game_score) + ' points', 1, end_message_colours[end_message])
+    screen.blit(score_text, (180, 150))
+
+def draw_best_scores():
+    translation = 0
+    for difficulty in ['Easy', 'Medium', 'Hard']:
+        best_score_text = font_best_scores.render(str(get_score_by_difficulty(str(difficulty))), 1, difficulty_colors[difficulty])
+        screen.blit(best_score_text, (230, 292 + 65 * translation))
+        translation += 1
 
 def main_menu():
     #Main menu funtion
@@ -455,10 +490,10 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    if board_type == "last":
-        board = test_grid
-    else:
-        board = get_sudoku_grid(board_type)
+    # if board_type == "last":
+    #     board = test_grid
+    # else:
+    board = get_sudoku_grid(board_type)
     pprint(board)
     
     if board_type == "last":
@@ -574,9 +609,12 @@ def end():
 
     run = True
     while run:
-        # debug_mouse_position()
         screen.blit(end_screen,(0, 0))
         screen.blit(end_text, check_score(end_message))
+        if end_message == 'victory':
+            draw_last_game_score()
+
+        draw_best_scores()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -585,7 +623,7 @@ def end():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if pos[0] > 115 and pos[0] < 385 and pos[1] > 440 and pos[1] < 510:
+                if pos[0] > 115 and pos[0] < 385 and pos[1] > 455 and pos[1] < 525:
                     print("Play again")
                     run = False
                     play_again = True
