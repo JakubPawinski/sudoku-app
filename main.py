@@ -37,7 +37,7 @@ paths = {
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
-        'ui_main_menu_disabledLastGame': '',
+        'ui_main_menu_disabledLastGame': 'Projekt_Sudoku/img/MainMenuTemplateLastGameDisabled.png',
         'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
         'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
@@ -45,7 +45,7 @@ paths = {
         'boards': 'Projekt_Sudoku/boards.json',
         'health': {3: 'Projekt_Sudoku/img/heart_100.png', 2: 'Projekt_Sudoku/img/heart_66.png', 1: 'Projekt_Sudoku/img/heart_33.png'},
         'pencil': {True: 'Projekt_Sudoku/img/pencil_clicked.png', False: 'Projekt_Sudoku/img/pencil_unclicked.png'},
-        'resultsDataBase' : 'xxxxxxxxxxxxxxxxxxxx'
+        'resultsDataBase' : 'Projekt_Sudoku/results.csv'
     }
 }
 
@@ -490,10 +490,10 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    # if board_type == "last":
-    #     board = test_grid
-    # else:
-    board = get_sudoku_grid(board_type)
+    if board_type == "last":
+        board = test_grid
+    else:
+        board = get_sudoku_grid(board_type)
     pprint(board)
     
     if board_type == "last":
