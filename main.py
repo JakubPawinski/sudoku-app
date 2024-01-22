@@ -7,11 +7,24 @@ from datetime import date
 # Pygame init
 pygame.init()
 
+# ======= Global variables =======
+play_again = False
+last_game_score = 0
+last_game_possible = True
 
-# Staric variables
+end_message = ''
+current_platform = 'ios'
+
+cords = [0, 0]
+board_type = None
+value = 0
+
+
+# ======= Staic variables =======
 SCREEN_SIZE = (500, 600)
+GRID_GAP = SCREEN_SIZE[0]/9
 
-
+#This dictionary contains paths to the images in the project, depending on the current operating system
 PATHS = {
     'windows':{
         'ui_main_menu': 'img\MainMenuTemplate.png',
@@ -38,17 +51,33 @@ PATHS = {
         'resultsDataBase' : 'Projekt_Sudoku/results.csv'
     }
 }
-play_again = False
-last_game_score = 0
-last_game_possible = True
-
-end_message = ''
-current_platform = 'windows'
 
 
-# Colours
-current_theme = 'white'
-colour_themes = {
+# ======= Fonts =======
+FONT_GRID = pygame.font.SysFont(None, 40)
+FONT_END_MESSAGE = pygame.font.SysFont(None, 60)
+FONT_TIMER = pygame.font.SysFont(None, 80)
+FONT_NOTES = pygame.font.SysFont(None, 16)
+FONT_LAST_GAME_SCORE = pygame.font.SysFont(None, 40)
+FONT_BEST_SCORES = pygame.font.SysFont(None, 26)
+
+# ======= Colors =======
+COLOR_BLACK = (0, 0, 0)
+
+COLORS_END_MESSAGE = {
+    'victory': (60, 201, 67),
+    'defeat': (175, 19, 19)
+}
+
+COLORS_DIFFICULTY = {
+    'Easy': (41, 226, 111),
+    'Medium': (226, 167, 41),
+    'Hard': (212, 83, 29)
+}
+
+# ======= Themes =======
+current_theme = 'white' #This variable contains the current theme, at the beginning it is set to white
+colour_themes = { 
     'white': {
         'background_colour': (250, 250, 250),
         'highlited_colour': (177, 219, 238),
@@ -66,62 +95,46 @@ colour_themes = {
         'ui': PATHS[current_platform]['game_ui_dark']
     }
 }
-end_message_colours = {
-    'victory': (60, 201, 67),
-    'defeat': (175, 19, 19)
+
+
+
+
+# ======= Themes =======
+current_theme = 'white' #This variable contains the current theme, at the beginning it is set to white
+colour_themes = { 
+    'white': {
+        'background_colour': (250, 250, 250),
+        'highlited_colour': (177, 219, 238),
+        'highlited_colour_background': (230, 230, 230),
+        'highlited_number_colour': (118, 171, 246),
+        'number': (0, 0, 0),
+        'ui': PATHS[current_platform]['game_ui_white']
+    },
+    'dark': {
+        'background_colour': (40, 41, 47),
+        'highlited_colour': (86, 166, 206),
+        'highlited_colour_background': (53, 55, 63),
+        'highlited_number_colour': (86, 166, 206),
+        'number': (106, 109, 124),
+        'ui': PATHS[current_platform]['game_ui_dark']
+    }
 }
-difficulty_colors = {
-    'Easy': (41, 226, 111),
-    'Medium': (226, 167, 41),
-    'Hard': (212, 83, 29)
-}
 
-black = (0, 0, 0)
-
-#global variables
-grid_gap = SCREEN_SIZE[0]/9
-cords = [0, 0]
-board_type = None
-value = 0
-
-notes = [
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
-    [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
-]
-
-#fonts
-font_grid = pygame.font.SysFont(None, 40)
-font_end_message = pygame.font.SysFont(None, 60)
-font_timer = pygame.font.SysFont(None, 80)
-font_notes = pygame.font.SysFont(None, 16)
-font_last_game_score = pygame.font.SysFont(None, 40)
-font_best_scores = pygame.font.SysFont(None, 26)
-
-# Screen init
+# ======= Pygame screen init =======
 screen = pygame.display.set_mode((SCREEN_SIZE))
 pygame.display.set_caption("Sudoku")
 
-#test funtion
+# ======= Test functions =======
 def debug_mouse_position():
     debug_pos = pygame.mouse.get_pos()
     print(debug_pos)
 
-def check_score(end_message):
-    if end_message == 'victory':
-        return (160, 100)
-    if end_message == 'defeat':
-        return (168, 100)
 
-def check_platform():
-    #This function checks the current platform and refreshes dictionaries
+# ======= =======
+def set_current_platform():
+    #This function sets current platform
     global current_platform
+
     if platform.system() == 'Darwin':
         current_platform = 'ios'
     if platform.system() == 'Windows':
@@ -130,11 +143,188 @@ def check_platform():
     colour_themes['white']['ui'] = PATHS[current_platform]['game_ui_white']
     colour_themes['dark']['ui'] = PATHS[current_platform]['game_ui_dark']
 
+# ===================== Game functions =====================
+
+def get_sudoku_grid(searched_board):
+    # The function gets the sudoku board from api or from file
+    
+    #If the player chooses the last game
+    if searched_board == "last":
+
+        #Read the board from file
+        with open(PATHS[current_platform]['boards'], 'r') as json_file:
+            json_data = json.load(json_file)
+        data = json_data
+        return data['last']
+    
+    get_asked_difficulty = False
+
+    while not get_asked_difficulty:
+
+        api_url = 'https://sudoku-api.vercel.app/api/dosuku'
+        response = requests.get(api_url) #Response from api
+
+        if response.status_code == 200:
+            #If api works
+            data = response.json()
+
+            if data['newboard']['grids'][0]['difficulty'] == searched_board:
+                get_asked_difficulty = True
+                data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution'], 'difficulty': data['newboard']['grids'][0]['difficulty']}
+                return data #Returns value, solution, difficulty
+            time.sleep(0.1)
+
+        else:
+            #Read the board from file if api doesn't work
+            
+            get_asked_difficulty = True
+
+            with open(PATHS[current_platform]['boards'], 'r') as json_file:
+                json_data = json.load(json_file)
+            data = json_data
+            data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution'], 'difficulty': data[searched_board]['newboard']['grids'][0]['difficulty']}
+            
+            return data #Returns value, solution, difficulty
+
+def save_game(board, time, health):
+    #This function saves the board, time and health in a file
+
+    #Read the file
+    with open(PATHS[current_platform]['boards'], 'r') as json_file:
+        json_data = json.load(json_file)
+    
+    json_data["last"] = board
+    json_data["last"].update({"time": time})
+    json_data["last"].update({"health": health})
+
+    #Save file
+    with open(PATHS[current_platform]['boards'], 'w') as json_file:
+        json.dump(json_data, json_file)
+    print("Saved")    
+
+def valid(board, value, cords):
+    #This function checks if it is possible to place player's number into the board
+    if board['value'][int(cords[0])][int(cords[1])] == 0 and board['solution'][int(cords[0])][int(cords[1])] == value:
+        return True
+    else:
+        return False
+
+def add_notes(value, cords):
+    #This function insert the player's notes to the note variable
+    
+    #import global variable
+    global notes
+    if not value in notes[int(cords[0])][int(cords[1])]:
+        notes[int(cords[0])][int(cords[1])].append(value)
+        notes[int(cords[0])][int(cords[1])].sort()
+# ======= Draw functions =======
+        
+def draw_highlighted_cells():
+    #This function draws hilighted cells
+
+    #Check if it is possible to highlight the cells
+    if cords[0] <= 8 and cords[1] <= 8:
+        box_cords = get_highlighted_box_cords(cords)
+        #hilighted box
+        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (box_cords[0] * GRID_GAP, box_cords[1] * GRID_GAP, GRID_GAP * 3, GRID_GAP * 3))
+        #vertical line
+        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (cords[0] * GRID_GAP, 0, GRID_GAP, 9 * GRID_GAP))
+        #horizontal line
+        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (0, cords[1] * GRID_GAP, GRID_GAP * 9, GRID_GAP))
+        #hilighted cell
+        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour'], (cords[0] * GRID_GAP, cords[1] * GRID_GAP, GRID_GAP, GRID_GAP))
+
+def draw_grid(board):
+    #This function draws the sudoku board
+
+    #Draw numbers
+    for i in range(9):
+        for j in range(9):
+
+            #Draw normal numbers
+            if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])] and cords[1] <= 8:
+                text1 = FONT_GRID.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
+                screen.blit(text1, (i * GRID_GAP + 20, j * GRID_GAP + 15))
+                
+            #Hilight the same numbers as the selected number
+            if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0 and cords[1] <= 8:
+                text1 = FONT_GRID.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
+                screen.blit(text1, (i * GRID_GAP + 20, j * GRID_GAP + 15))
+
+                ##Draw the selected number normally on the highlighted background
+                if i == cords[0] and cords[1] == j:
+                    text1 = FONT_GRID.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
+                    screen.blit(text1, (i * GRID_GAP + 20, j * GRID_GAP + 15))
+    
+    #Draw board lines 
+    for i in range(10):
+        if i % 3 == 0 : #Every third line thicker
+            thick = 7
+        else:
+            thick = 1
+        pygame.draw.line(screen, colour_themes[current_theme]['number'], (0, i * GRID_GAP), (500, i * GRID_GAP), thick)
+        pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * GRID_GAP, 0), (i * GRID_GAP, 500), thick)  
+
+def draw_notes(board):
+    #This function draws the player's notes
+
+    for i in range(9):
+        for j in range(9):
+            if notes[i][j] == [0]:
+                continue
+            else:
+                #Reset gaps
+                horizontal_gap = 0
+                vertical_gap = 0
+
+                #Draw number in one tile
+                for number in notes[i][j]:                    
+                    if number != 0:
+                        if board[int(cords[0])][int(cords[1])] == number:
+                            text1 = FONT_NOTES.render(str(number), 1, colour_themes[current_theme]['highlited_number_colour'])
+                        else:
+                            text1 = FONT_NOTES.render(str(number), 1, colour_themes[current_theme]['number'])
+                        screen.blit(text1, ( (i * GRID_GAP) + ( horizontal_gap * GRID_GAP/3) + 5, (j* GRID_GAP) + ( vertical_gap * GRID_GAP/3 ) + 4))
+                        horizontal_gap += 1
+
+                        if horizontal_gap == 3:
+                            horizontal_gap = 0
+                            vertical_gap += 1
+
+def draw_health(health):
+    #This function draws the player's health
+    img = pygame.image.load(PATHS[current_platform]['health'][health]) #Change the image depends on player's health
+    screen.blit(img,(220, 520)) #Display health
+
+def draw_pencil_button(is_clicked):
+    #This function draws the pencil button
+
+    #Import button images
+    clicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
+    unclicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
+
+    #Change the image if the pencil is activate
+    if is_clicked == True:
+        screen.blit(clicked, (125, 525))
+    if is_clicked == False:
+        screen.blit(unclicked, (125, 525))
+
+
+#===================== End screen functions ============================
+
+def check_score(end_message):
+    if end_message == 'victory':
+        return (160, 100)
+    if end_message == 'defeat':
+        return (168, 100)
+
+
+
 def get_cords(pos):
     #This function gets cords of highlighted cell
     temp = [0, 0]
-    temp[0] = pos[0] // grid_gap
-    temp[1] = pos[1] // grid_gap
+    temp[0] = pos[0] // GRID_GAP
+    temp[1] = pos[1] // GRID_GAP
     print(temp)
     return temp
 
@@ -164,65 +354,13 @@ def get_highlighted_box_cords(cords):
     else:
         return cords
 
-def draw_highlighted_cells():
-    #This function draws highlited cells
-
-    #Check if it is possible to highlight the cells
-    if cords[0] <= 8 and cords[1] <= 8:
-        box_cords = get_highlighted_box_cords(cords)
-        #highlited box
-        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (box_cords[0] * grid_gap, box_cords[1] * grid_gap, grid_gap * 3, grid_gap * 3))
-        #vertical line
-        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (cords[0] * grid_gap, 0, grid_gap, 9 * grid_gap))
-        #horizontal line
-        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour_background'], (0, cords[1] * grid_gap, grid_gap * 9, grid_gap))
-        #Highlited cell
-        pygame.draw.rect(screen, colour_themes[current_theme]['highlited_colour'], (cords[0] * grid_gap, cords[1] * grid_gap, grid_gap, grid_gap))
-
-def valid(board, value, cords):
-    #This function checks if it is possible to place player's number into the board
-    if board['value'][int(cords[0])][int(cords[1])] == 0 and board['solution'][int(cords[0])][int(cords[1])] == value:
-        return True
-    else:
-        return False
 
 def if_win(board):
     #This funtion checks if it is the end of the game
     if board['value'] == board['solution']:
         return True
 
-def get_sudoku_grid(searched_board):
-    # The function gets the sudoku board from api and returns both the sudoku board and its solution
-    if searched_board == "last":
-        with open(PATHS[current_platform]['boards'], 'r') as json_file:
-            json_data = json.load(json_file)
-        data = json_data
-        return data['last']
-    
-    get_asked_difficulty = False
 
-    while not get_asked_difficulty:
-        api_url = 'https://sudoku-api.vercel.app/api/dosuku'
-        response = requests.get(api_url)
-
-        if response.status_code == 200:
-            pprint(response)
-            data = response.json()
-            pprint(data)
-            if data['newboard']['grids'][0]['difficulty'] == searched_board:
-                get_asked_difficulty = True
-                print('===============')
-                data = {'value': data['newboard']['grids'][0]['value'], 'solution': data['newboard']['grids'][0]['solution'], 'difficulty': data['newboard']['grids'][0]['difficulty']}
-                return data
-            time.sleep(0.1)
-        else:
-            get_asked_difficulty = True
-            with open(PATHS[current_platform]['boards'], 'r') as json_file:
-                json_data = json.load(json_file)
-            data = json_data
-            data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution'], 'difficulty': data[searched_board]['newboard']['grids'][0]['difficulty']}
-            pprint(data)
-            return data
         
 #example grid
 test_grid ={
@@ -249,46 +387,9 @@ test_grid ={
 
 }
 
-def draw_grid(board):
-    #This function draws the sudoku board
 
-    # print(test_grid[int(cords[0])][int(cords[1])])
-    #This loop draws numbers
-    for i in range(9):
-        for j in range(9):
-            #Draw if highlited number != board number
-            if board[i][j] != 0 and board[i][j] != board[int(cords[0])][int(cords[1])] and cords[1] <= 8:
-                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
-                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                
-            #Draw if highlited number == board number
-            if board[i][j] == board[int(cords[0])][int(cords[1])] and board[i][j] != 0 and cords[1] <= 8:
-                text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
-                screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                if i == cords[0] and cords[1] == j:
-                    text1 = font_grid.render(str(board[i][j]), 1, colour_themes[current_theme]['number'])
-                    screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                    # print(i, j, board[i][j], "cords", cords)
-    #This loop draws sudoku lines  
-    for i in range(10):
-        if i % 3 == 0 :
-            thick = 7
-        else:
-            thick = 1
-        pygame.draw.line(screen, colour_themes[current_theme]['number'], (0, i * grid_gap), (500, i * grid_gap), thick)
-        pygame.draw.line(screen, colour_themes[current_theme]['number'], (i * grid_gap, 0), (i * grid_gap, 500), thick)  
 
-def save_game(board, time, health):
-    print("Saved")
-    with open(PATHS[current_platform]['boards'], 'r') as json_file:
-        json_data = json.load(json_file)
-    
-    json_data["last"] = board
-    json_data["last"].update({"time": time})
-    json_data["last"].update({"health": health})
 
-    with open(PATHS[current_platform]['boards'], 'w') as json_file:
-        json.dump(json_data, json_file)
 
 def count_score(difficulty, time, health):
     global last_game_score
@@ -336,145 +437,110 @@ def draw_time(start_ticks, recent_time=0):
     if minutes <= 9:
         minutes = '0' + str(minutes)
 
-    text = font_timer.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
+    text = FONT_TIMER.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
     screen.blit(text, (310, 522))
     return (time)
 
-def draw_health(health):
 
-    img = pygame.image.load(PATHS[current_platform]['health'][health])
-    screen.blit(img,(220, 520))
 
-def draw_pencil_button(is_clicked):
-    clicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
-    unclicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
-    if is_clicked == True:
-        screen.blit(clicked, (125, 525))
-    if is_clicked == False:
-        screen.blit(unclicked, (125, 525))
 
-def add_notes(value, cords):
-    global notes
-    if not value in notes[int(cords[0])][int(cords[1])]:
-        notes[int(cords[0])][int(cords[1])].append(value)
-        notes[int(cords[0])][int(cords[1])].sort()
 
-def draw_notes(board):
-    global notes
-    global cords
 
-       #This loop draws numbers
-    for i in range(9):
-        for j in range(9):
-            #Draw if highlited number != board number
-            if notes[i][j] == [0]:
-                continue
-            else:
-                horizontal_gap = 0
-                vertical_gap = 0
-                for number in notes[i][j]:
+
+
                     
-                    if number != 0:
-                        if board[int(cords[0])][int(cords[1])] == number:
-                            text1 = font_notes.render(str(number), 1, colour_themes[current_theme]['highlited_number_colour'])
-                        else:
-                            text1 = font_notes.render(str(number), 1, colour_themes[current_theme]['number'])
-                        screen.blit(text1, ( (i * grid_gap) + ( horizontal_gap * (grid_gap)/3) + 5, (j* grid_gap) + ( vertical_gap * (grid_gap)/3 ) + 4))
-                        horizontal_gap += 1
-
-
-
-                        if horizontal_gap == 3:
-                            horizontal_gap = 0
-                            vertical_gap += 1
-                    
-
-                # #Draw if highlited number == board number
-                # if notes[i][j] == notes[int(cords[0])][int(cords[1])] and notes[i][j] != 0 and cords[1] <= 8:
-                #     text1 = font_grid.render(str(notes[i][j]), 1, colour_themes[current_theme]['highlited_number_colour'])
-                #     screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                #     if i == cords[0] and cords[1] == j:
-                #         text1 = font_grid.render(str(notes[i][j]), 1, colour_themes[current_theme]['number'])
-                #         screen.blit(text1, (i * grid_gap + 20, j * grid_gap + 15))
-                #         # print(i, j, board[i][j], "cords", cords) 
 
 def draw_last_game_score():
 
-    score_text = font_last_game_score.render(str(last_game_score) + ' points', 1, end_message_colours[end_message])
+    score_text = FONT_LAST_GAME_SCORE.render(str(last_game_score) + ' points', 1, COLORS_END_MESSAGE[end_message])
     screen.blit(score_text, (180, 150))
 
 def draw_best_scores():
     translation = 0
     for difficulty in ['Easy', 'Medium', 'Hard']:
-        best_score_text = font_best_scores.render(str(get_score_by_difficulty(str(difficulty))), 1, difficulty_colors[difficulty])
+        best_score_text = FONT_BEST_SCORES.render(str(get_score_by_difficulty(str(difficulty))), 1, COLORS_DIFFICULTY[difficulty])
         screen.blit(best_score_text, (230, 292 + 65 * translation))
         translation += 1
 
+# ======= Main menu function =======
+
 def main_menu():
-    #Main menu funtion
+    #This function is responsible for the menu in game. It draws a menu window and allows player to choose the difficulty level or continue with the last game
+    
+    #Import global variables
     global board_type
     global current_platform
     global last_game_possible
-    print("Main menu")
+
+
+    #Enable the last game button if the last game can be played.
     if last_game_possible == True:
         menu = pygame.image.load(PATHS[current_platform]['ui_main_menu'])
     elif last_game_possible == False:
         print("lastGamedisabled")
         menu = pygame.image.load(PATHS[current_platform]['ui_main_menu_disabledLastGame'])
-        # menu = pygame.image.load(PATHS[current_platform]['ui_main_menu'])
 
+    #Set loading screen
     loading = pygame.image.load(PATHS[current_platform]['ui_loading_screen'])
+
+
     run = True
     while run:
+        #Display menu UI
         screen.blit(menu,(0, 0))
-        # debug_mouse_position()
+
         for event in pygame.event.get():
+
+            #Quit the game
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
                 sys.exit()
+
+            #Clicked mouse button
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
+                #Gets the mouse position
                 pos = pygame.mouse.get_pos()
 
+                #If the mouse covers the last game button
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 145 and pos[1] < 215 and last_game_possible == True:
                     board_type = "last"
-                    print(board_type)
                     screen.blit(loading,(0, 0))
                     run = False
+
+                #If the mouse covers the easy button
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 300 and pos[1] < 365:
                     board_type = "Easy"
-                    print(board_type)
                     screen.blit(loading,(0, 0))
                     run = False
+
+                #If the mouse covers the medium button
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 385 and pos[1] < 450:
                     board_type = "Medium"
-                    print(board_type)
                     screen.blit(loading,(0, 0))
                     run = False
+
+                #If the mouse covers the hard button
                 if pos[0] > 115 and pos[0] < 380 and pos[1] > 475 and pos[1] < 540:
                     board_type = "Hard"
-                    print(board_type)
                     screen.blit(loading,(0, 0))
                     run = False
+
+        #update the screen
         pygame.display.update()
 
+# ======= Game function =======
+        
 def game():
-    #game funtion
-    print("Game")
-    #variables
-    global cords
-    global board_type
-    global current_theme
-    global current_platform
-    global PATHS
-    global end_message
-    global notes
-    global last_game_possible
+    #The main game function responsible for the game.
     
-
+    #Import global variables
+    global cords, board_type, current_theme, current_platform, PATHS, end_message, notes, last_game_possible, value
+  
+    #Variables
     clock = pygame.time.Clock()
     is_pencil_clicked = False
-
 
     notes = [
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
@@ -487,46 +553,64 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    if board_type == "last":
-        board = test_grid
-    else:
-        board = get_sudoku_grid(board_type)
-    pprint(board)
     
+    #Set the sudoku board
+
+    # if board_type == "last":
+    #     board = test_grid
+    # else:
+    board = get_sudoku_grid(board_type) 
+    pprint(board) #print board
+    
+    #Set health
     if board_type == "last":
         health = board['health']
     else:
         health = 3
 
+    #Starts counting time
     start_ticks = pygame.time.get_ticks()
+    
     run = True
     while run:
-        global value
-        value = 0
-        #This section draws the highlighted cells in the correct order in order to draw highlight behind the sudoku grid
-        screen.fill(colour_themes[current_theme]['background_colour'])
-        ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
-        draw_highlighted_cells()
-        draw_grid(board['value'])
-        draw_notes(board['value'])
 
-        
+        #Reset value variable
+        value = 0
+
+        #Draw the game window
+
+        screen.fill(colour_themes[current_theme]['background_colour']) #Fill background
+        ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
+        draw_highlighted_cells() #Marks vertical, horizontal tiles and square
+        draw_grid(board['value']) #Draw sudoku grid
+        draw_notes(board['value']) #Draw notes
 
         screen.blit(ui, (0, 500)) #draw Game UI
-        draw_health(health)
-        draw_pencil_button(is_pencil_clicked)
+        draw_health(health) # Draw health
+        draw_pencil_button(is_pencil_clicked) #Draw pencil button
 
 
         for event in pygame.event.get():
+
+            #Quit the game
             if event.type == pygame.QUIT:
                 run = False
                 save_game(board, current_time, health)
+                
                 pygame.quit()
                 sys.exit()
+
+            #Mouse button clicked
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
+                #Get mouse position
                 pos = pygame.mouse.get_pos()
+                
+                #Update the highlighted tile if the player clicks on the board.
                 if pos[1] <= 500:
                     cords = get_cords(pos)
+                
+                #Change themes
                 if pos[0] >= 25 and pos[0] <= 100 and pos[1] >= 515 and pos[1] <= 585:
                     if current_theme == 'dark':
                         current_theme = 'white'
@@ -534,13 +618,16 @@ def game():
                     if current_theme == 'white':
                         current_theme = 'dark'
                         continue
+
+                #Pencil
                 if pos[0] >= 125 and pos[0] <= 175 and pos[1] >= 525 and pos[1] <=575:
                     print('pencil')
                     if is_pencil_clicked == True:
                         is_pencil_clicked = False
                     elif is_pencil_clicked == False:
                         is_pencil_clicked = True
-                    
+
+            #Sets the value to the value entered by the player    
             if event.type == KEYDOWN:
                 if event.key == pygame.K_1 or event.key == pygame.K_KP1:
                     value = 1
@@ -561,17 +648,22 @@ def game():
                 if event.key == pygame.K_9 or event.key == pygame.K_KP9:
                     value = 9
         
+        #Chcecks player move
         if (value != 0 and board['value'][int(cords[0])][int(cords[1])] == 0):
-            if is_pencil_clicked == False:
-                print(value)  
+            
+            #If pencil active
+            if is_pencil_clicked == False:  
                 if valid(board, value, cords) == True:
                     board['value'][int(cords[0])][int(cords[1])] = value
                     notes[int(cords[0])][int(cords[1])] = [0] #Reset
                 else:
                     health -= 1
+            
+            #If pencil doesn't active
             if is_pencil_clicked == True:
                 add_notes(value, cords)
 
+#=================================================================================================================================================
         if health == 0:
             print('Koniec')
             last_game_possible = False
@@ -595,13 +687,15 @@ def game():
             current_time = draw_time(start_ticks) 
         pygame.display.update()
 
+# ======= End menu function =======
+        
 def end():
     global end_message
     global play_again
     print("End screen")
     end_screen = pygame.image.load(PATHS[current_platform]['end_screen'])
 
-    end_text = font_end_message.render(end_message.upper(), 1, end_message_colours[end_message])
+    end_text = FONT_END_MESSAGE.render(end_message.upper(), 1, COLORS_END_MESSAGE[end_message])
 
 
     run = True
@@ -627,11 +721,18 @@ def end():
                     main()
         pygame.display.update()
 
+
+# ======= Main function =======
+        
 def main():
+    #Main project function
+
+    #Import global variables
     global play_again
-    # The main project funtion
-    check_platform()
+
+    set_current_platform()
     print(current_platform)
+
 
     run = True
     while run:
