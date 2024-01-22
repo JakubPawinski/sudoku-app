@@ -1,28 +1,18 @@
-import pygame
+import pygame, requests, json, sys, time, platform, math
 from pygame.locals import *
-import requests
 from pprint import pprint
-import json 
-import sys
-import time
-import platform
-import math
 import pandas as pd
 from datetime import date
+
 # Pygame init
 pygame.init()
 
 
-# Main variables
-screen_size = (500, 600)
+# Staric variables
+SCREEN_SIZE = (500, 600)
 
-play_again = False
-last_game_score = 0
-last_game_possible = True
 
-end_message = ''
-current_platform = 'windows'
-paths = {
+PATHS = {
     'windows':{
         'ui_main_menu': 'img\MainMenuTemplate.png',
         'ui_main_menu_disabledLastGame': 'img\MainMenuTemplateLastGameDisabled.png',
@@ -48,6 +38,13 @@ paths = {
         'resultsDataBase' : 'Projekt_Sudoku/results.csv'
     }
 }
+play_again = False
+last_game_score = 0
+last_game_possible = True
+
+end_message = ''
+current_platform = 'windows'
+
 
 # Colours
 current_theme = 'white'
@@ -58,7 +55,7 @@ colour_themes = {
         'highlited_colour_background': (230, 230, 230),
         'highlited_number_colour': (118, 171, 246),
         'number': (0, 0, 0),
-        'ui': paths[current_platform]['game_ui_white']
+        'ui': PATHS[current_platform]['game_ui_white']
     },
     'dark': {
         'background_colour': (40, 41, 47),
@@ -66,7 +63,7 @@ colour_themes = {
         'highlited_colour_background': (53, 55, 63),
         'highlited_number_colour': (86, 166, 206),
         'number': (106, 109, 124),
-        'ui': paths[current_platform]['game_ui_dark']
+        'ui': PATHS[current_platform]['game_ui_dark']
     }
 }
 end_message_colours = {
@@ -82,7 +79,7 @@ difficulty_colors = {
 black = (0, 0, 0)
 
 #global variables
-grid_gap = screen_size[0]/9
+grid_gap = SCREEN_SIZE[0]/9
 cords = [0, 0]
 board_type = None
 value = 0
@@ -108,7 +105,7 @@ font_last_game_score = pygame.font.SysFont(None, 40)
 font_best_scores = pygame.font.SysFont(None, 26)
 
 # Screen init
-screen = pygame.display.set_mode((screen_size))
+screen = pygame.display.set_mode((SCREEN_SIZE))
 pygame.display.set_caption("Sudoku")
 
 #test funtion
@@ -130,8 +127,8 @@ def check_platform():
     if platform.system() == 'Windows':
         current_platform = 'windows'
     #refresh colour_themes dictionary
-    colour_themes['white']['ui'] = paths[current_platform]['game_ui_white']
-    colour_themes['dark']['ui'] = paths[current_platform]['game_ui_dark']
+    colour_themes['white']['ui'] = PATHS[current_platform]['game_ui_white']
+    colour_themes['dark']['ui'] = PATHS[current_platform]['game_ui_dark']
 
 def get_cords(pos):
     #This function gets cords of highlighted cell
@@ -197,7 +194,7 @@ def if_win(board):
 def get_sudoku_grid(searched_board):
     # The function gets the sudoku board from api and returns both the sudoku board and its solution
     if searched_board == "last":
-        with open(paths[current_platform]['boards'], 'r') as json_file:
+        with open(PATHS[current_platform]['boards'], 'r') as json_file:
             json_data = json.load(json_file)
         data = json_data
         return data['last']
@@ -220,7 +217,7 @@ def get_sudoku_grid(searched_board):
             time.sleep(0.1)
         else:
             get_asked_difficulty = True
-            with open(paths[current_platform]['boards'], 'r') as json_file:
+            with open(PATHS[current_platform]['boards'], 'r') as json_file:
                 json_data = json.load(json_file)
             data = json_data
             data = {'value': data[searched_board]['newboard']['grids'][0]['value'], 'solution': data[searched_board]['newboard']['grids'][0]['solution'], 'difficulty': data[searched_board]['newboard']['grids'][0]['difficulty']}
@@ -283,14 +280,14 @@ def draw_grid(board):
 
 def save_game(board, time, health):
     print("Saved")
-    with open(paths[current_platform]['boards'], 'r') as json_file:
+    with open(PATHS[current_platform]['boards'], 'r') as json_file:
         json_data = json.load(json_file)
     
     json_data["last"] = board
     json_data["last"].update({"time": time})
     json_data["last"].update({"health": health})
 
-    with open(paths[current_platform]['boards'], 'w') as json_file:
+    with open(PATHS[current_platform]['boards'], 'w') as json_file:
         json.dump(json_data, json_file)
 
 def count_score(difficulty, time, health):
@@ -309,15 +306,15 @@ def count_score(difficulty, time, health):
         return 0
 
 def save_score(board, time, health):
-    CsvFile = pd.read_csv(paths[current_platform]['resultsDataBase'])
+    CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase'])
     new_row = {'Date': date.today(), 'DifficultyLevel': board['difficulty'], 'LivesRemaining': health, 'Time': time, 'Score': count_score(board['difficulty'], time, health)}
     CsvFile.loc[len(CsvFile)] = new_row
-    CsvFile.to_csv(paths[current_platform]['resultsDataBase'], index=False)
+    CsvFile.to_csv(PATHS[current_platform]['resultsDataBase'], index=False)
     print("Score saved", new_row)
 
 def get_score_by_difficulty(difficulty):
 
-    CsvFile = pd.read_csv(paths[current_platform]['resultsDataBase']).sort_values(by=['DifficultyLevel', 'Score'], ascending=[False, False])
+    CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase']).sort_values(by=['DifficultyLevel', 'Score'], ascending=[False, False])
     if difficulty == "Easy":
         easy_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Easy'].iloc[0]
         return easy_row['Score']
@@ -345,12 +342,12 @@ def draw_time(start_ticks, recent_time=0):
 
 def draw_health(health):
 
-    img = pygame.image.load(paths[current_platform]['health'][health])
+    img = pygame.image.load(PATHS[current_platform]['health'][health])
     screen.blit(img,(220, 520))
 
 def draw_pencil_button(is_clicked):
-    clicked = pygame.image.load(paths[current_platform]['pencil'][is_clicked])
-    unclicked = pygame.image.load(paths[current_platform]['pencil'][is_clicked])
+    clicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
+    unclicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
     if is_clicked == True:
         screen.blit(clicked, (125, 525))
     if is_clicked == False:
@@ -420,13 +417,13 @@ def main_menu():
     global last_game_possible
     print("Main menu")
     if last_game_possible == True:
-        menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+        menu = pygame.image.load(PATHS[current_platform]['ui_main_menu'])
     elif last_game_possible == False:
         print("lastGamedisabled")
-        menu = pygame.image.load(paths[current_platform]['ui_main_menu_disabledLastGame'])
-        # menu = pygame.image.load(paths[current_platform]['ui_main_menu'])
+        menu = pygame.image.load(PATHS[current_platform]['ui_main_menu_disabledLastGame'])
+        # menu = pygame.image.load(PATHS[current_platform]['ui_main_menu'])
 
-    loading = pygame.image.load(paths[current_platform]['ui_loading_screen'])
+    loading = pygame.image.load(PATHS[current_platform]['ui_loading_screen'])
     run = True
     while run:
         screen.blit(menu,(0, 0))
@@ -469,7 +466,7 @@ def game():
     global board_type
     global current_theme
     global current_platform
-    global paths
+    global PATHS
     global end_message
     global notes
     global last_game_possible
@@ -602,7 +599,7 @@ def end():
     global end_message
     global play_again
     print("End screen")
-    end_screen = pygame.image.load(paths[current_platform]['end_screen'])
+    end_screen = pygame.image.load(PATHS[current_platform]['end_screen'])
 
     end_text = font_end_message.render(end_message.upper(), 1, end_message_colours[end_message])
 
