@@ -33,7 +33,7 @@ PATHS = {
     },
     'ios':{
         'ui_main_menu': 'Projekt_Sudoku/img/MainMenuTemplate.png',
-        'ui_main_menu_disabledLastGame': 'Projekt_Sudoku/img/MainMenuTemplateLastGameDisabled.png',
+        'ui_main_menu_disabledLastGame': '',
         'ui_loading_screen': 'Projekt_Sudoku/img/LoadingScreen.png',
         'game_ui_white': 'Projekt_Sudoku/img/GameUIWhite.png',
         'game_ui_dark': 'Projekt_Sudoku/img/GameUIDark.png',
@@ -41,7 +41,7 @@ PATHS = {
         'boards': 'Projekt_Sudoku/boards.json',
         'health': {3: 'Projekt_Sudoku/img/heart_100.png', 2: 'Projekt_Sudoku/img/heart_66.png', 1: 'Projekt_Sudoku/img/heart_33.png'},
         'pencil': {True: 'Projekt_Sudoku/img/pencil_clicked.png', False: 'Projekt_Sudoku/img/pencil_unclicked.png'},
-        'resultsDataBase' : 'Projekt_Sudoku/results.csv'
+        'resultsDataBase' : 'xxxxxxxxxxxxxxxxxxxx'
     }
 }
 
@@ -92,28 +92,3 @@ FONT_TIMER = pygame.font.SysFont(None, 80)
 FONT_NOTES = pygame.font.SysFont(None, 16)
 FONT_LAST_GAME_SCORE = pygame.font.SysFont(None, 40)
 FONT_BEST_SCORES = pygame.font.SysFont(None, 26)
-
-
-test_grid ={
-        'value':[[4, 5, 8, 7, 9, 6, 3, 1, 2],
-           [7, 6, 9, 1, 2, 3, 5, 8, 4],
-           [1, 3, 2, 4, 8, 5, 7, 9, 6],
-           [8, 2, 7, 3, 6, 9, 1, 4, 5],
-           [3, 9, 1, 5, 4, 2, 8, 6, 7],
-           [6, 4, 5, 8, 1, 7, 2, 3, 9],
-           [5, 1, 4, 9, 7, 8, 6, 2, 3],
-           [9, 7, 6, 2, 3, 1, 4, 5, 8],
-           [2, 8, 3, 6, 5, 4, 9, 0, 0]],
-        'solution': [[4, 5, 8, 7, 9, 6, 3, 1, 2],
-              [7, 6, 9, 1, 2, 3, 5, 8, 4],
-              [1, 3, 2, 4, 8, 5, 7, 9, 6],
-              [8, 2, 7, 3, 6, 9, 1, 4, 5],
-              [3, 9, 1, 5, 4, 2, 8, 6, 7],
-              [6, 4, 5, 8, 1, 7, 2, 3, 9],
-              [5, 1, 4, 9, 7, 8, 6, 2, 3],
-              [9, 7, 6, 2, 3, 1, 4, 5, 8],
-              [2, 8, 3, 6, 5, 4, 9, 7, 1]],
-        'health': 3,
-        'difficulty': 'Medium'
-
-}

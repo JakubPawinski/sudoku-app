@@ -2,7 +2,7 @@ import math
 from static import *
 from data_functions import *
 
-def draw_grid(SCREEN, current_theme, board):
+def draw_grid(SCREEN, board, current_theme):
     #This function draws the sudoku board
 
     # print(test_grid[int(cords[0])][int(cords[1])])
@@ -33,7 +33,7 @@ def draw_grid(SCREEN, current_theme, board):
 
 
     
-def draw_highlighted_cells(SCREEN, current_theme, cords):
+def draw_highlighted_cells(SCREEN, cords, current_theme):
     #This function draws highlited cells
 
     #Check if it is possible to highlight the cells
@@ -63,12 +63,12 @@ def draw_time(SCREEN, current_theme, start_ticks, recent_time=0):
     SCREEN.blit(text, (310, 522))
     return (time)
 
-def draw_health(SCREEN, current_platform, health):
+def draw_health(SCREEN, health):
 
     img = pygame.image.load(PATHS[current_platform]['health'][health])
     SCREEN.blit(img,(220, 520))
 
-def draw_pencil_button(SCREEN, current_platform, is_clicked):
+def draw_pencil_button(SCREEN, is_clicked):
     clicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
     unclicked = pygame.image.load(PATHS[current_platform]['pencil'][is_clicked])
     if is_clicked == True:
@@ -101,14 +101,14 @@ def draw_notes(SCREEN, current_theme, board, notes, cords):
                             horizontal_gap = 0
                             vertical_gap += 1
 
-def draw_last_game_score(SCREEN, end_message, difficulty, time, health):
-    last_game_score = count_score(difficulty, time, health)
+def draw_last_game_score(SCREEN):
+
     score_text = FONT_LAST_GAME_SCORE.render(str(last_game_score) + ' points', 1, END_MESSAGE_COLORS[end_message])
     SCREEN.blit(score_text, (180, 150))
 
-def draw_best_scores(SCREEN, current_platform):
+def draw_best_scores(SCREEN):
     translation = 0
     for difficulty in ['Easy', 'Medium', 'Hard']:
-        best_score_text = FONT_BEST_SCORES.render(str(get_score_by_difficulty(str(difficulty), current_platform)), 1, DIFFICULTY_FONT_COLORS[difficulty])
+        best_score_text = FONT_BEST_SCORES.render(str(get_score_by_difficulty(str(difficulty))), 1, DIFFICULTY_FONT_COLORS[difficulty])
         SCREEN.blit(best_score_text, (230, 292 + 65 * translation))
         translation += 1
