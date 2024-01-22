@@ -1,14 +1,9 @@
-import pygame
+import pygame, requests, json, sys, time, platform
 from pygame.locals import *
-import requests
 from pprint import pprint
-import json 
-import sys
-import time
-import platform
-import math
 import pandas as pd
-from datetime import date
+
+
 from static import *
 from drawing_funtions import *
 # Pygame init
@@ -17,20 +12,6 @@ pygame.init()
 
 # Main variables
 current_theme = 'white'
-
-
-
-# Colours
-
-
-
-
-
-
-
-#global variables
-
-
 
 # Screen init
 SCREEN = pygame.display.set_mode(SCREEN_SIZE)
@@ -116,63 +97,12 @@ def get_sudoku_grid(searched_board):
             return data
         
 #example grid
-test_grid ={
-        'value':[[4, 5, 8, 7, 9, 6, 3, 1, 2],
-           [7, 6, 9, 1, 2, 3, 5, 8, 4],
-           [1, 3, 2, 4, 8, 5, 7, 9, 6],
-           [8, 2, 7, 3, 6, 9, 1, 4, 5],
-           [3, 9, 1, 5, 4, 2, 8, 6, 7],
-           [6, 4, 5, 8, 1, 7, 2, 3, 9],
-           [5, 1, 4, 9, 7, 8, 6, 2, 3],
-           [9, 7, 6, 2, 3, 1, 4, 5, 8],
-           [2, 8, 3, 6, 5, 4, 9, 0, 0]],
-        'solution': [[4, 5, 8, 7, 9, 6, 3, 1, 2],
-              [7, 6, 9, 1, 2, 3, 5, 8, 4],
-              [1, 3, 2, 4, 8, 5, 7, 9, 6],
-              [8, 2, 7, 3, 6, 9, 1, 4, 5],
-              [3, 9, 1, 5, 4, 2, 8, 6, 7],
-              [6, 4, 5, 8, 1, 7, 2, 3, 9],
-              [5, 1, 4, 9, 7, 8, 6, 2, 3],
-              [9, 7, 6, 2, 3, 1, 4, 5, 8],
-              [2, 8, 3, 6, 5, 4, 9, 7, 1]],
-        'health': 3,
-        'difficulty': 'Medium'
 
-}
 
-def save_game(board, time, health):
-    print("Saved")
-    with open(PATHS[current_platform]['boards'], 'r') as json_file:
-        json_data = json.load(json_file)
-    
-    json_data["last"] = board
-    json_data["last"].update({"time": time})
-    json_data["last"].update({"health": health})
 
-    with open(PATHS[current_platform]['boards'], 'w') as json_file:
-        json.dump(json_data, json_file)
 
-def count_score(difficulty, time, health):
-    global last_game_score
-    if difficulty == "Easy":
-        difficulty_level = 1
-    elif difficulty == "Medium":
-        difficulty_level = 2
-    elif difficulty == "Hard":
-        difficulty_level = 3
-    score = int(-1 * (0.3 * difficulty_level / health * time) + 1000)
-    last_game_score = score
-    if score >= 0:
-        return score
-    else:
-        return 0
 
-def save_score(board, time, health):
-    CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase'])
-    new_row = {'Date': date.today(), 'DifficultyLevel': board['difficulty'], 'LivesRemaining': health, 'Time': time, 'Score': count_score(board['difficulty'], time, health)}
-    CsvFile.loc[len(CsvFile)] = new_row
-    CsvFile.to_csv(PATHS[current_platform]['resultsDataBase'], index=False)
-    print("Score saved", new_row)
+
 
 def add_notes(value, cords):
     global notes
@@ -257,10 +187,10 @@ def game():
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]],
     [[0], [0], [0], [0], [0], [0], [0], [0], [0]]
 ]
-    # if board_type == "last":
-    #     board = test_grid
-    # else:
-    board = get_sudoku_grid(board_type)
+    if board_type == "last":
+        board = test_grid
+    else:
+        board = get_sudoku_grid(board_type)
     pprint(board)
     
     if board_type == "last":
@@ -278,16 +208,16 @@ def game():
         ui = pygame.image.load(colour_themes[current_theme]['ui']) #loads Game UI
         
         
-        draw_highlighted_cells(SCREEN, cords, current_theme)
+        draw_highlighted_cells(SCREEN, current_theme, cords)
 
-        draw_grid(SCREEN, board['value'], current_theme)
+        draw_grid(SCREEN, current_theme, board['value'])
         draw_notes(SCREEN, current_theme, board['value'], notes, cords)
 
         
 
         SCREEN.blit(ui, (0, 500)) #draw Game UI
-        draw_health(SCREEN, health)
-        draw_pencil_button(SCREEN, is_pencil_clicked)
+        draw_health(SCREEN, current_platform, health)
+        draw_pencil_button(SCREEN, current_platform, is_pencil_clicked)
 
 
         for event in pygame.event.get():
@@ -355,11 +285,9 @@ def game():
             print("Wygrana")
             last_game_possible = False
             end_message = "victory"
-            save_score(board, current_time, health)
+            save_score(current_platform, board, current_time, health)
             run = False
-        # #test funtion
-        # debug_mouse_position()
-            
+
         #Time counter
         clock.tick(60)
         if 'time' in board:
@@ -382,9 +310,9 @@ def end():
         SCREEN.blit(end_screen,(0, 0))
         SCREEN.blit(end_text, check_score(end_message))
         if end_message == 'victory':
-            draw_last_game_score(SCREEN)
+            draw_last_game_score(SCREEN, end_message, difficulty, time, health)
 
-        draw_best_scores(SCREEN)
+        draw_best_scores(SCREEN, current_platform)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
