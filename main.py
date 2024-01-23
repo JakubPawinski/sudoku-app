@@ -7,35 +7,57 @@ from datetime import date
 # Pygame init
 pygame.init()
 
-# ======= Global variables =======
+#Test grid
+test_grid ={
+        'value':[[4, 5, 8, 7, 9, 6, 3, 1, 2],
+           [7, 6, 9, 1, 2, 3, 5, 8, 4],
+           [1, 3, 2, 4, 8, 5, 7, 9, 6],
+           [8, 2, 7, 3, 6, 9, 1, 4, 5],
+           [3, 9, 1, 5, 4, 2, 8, 6, 7],
+           [6, 4, 5, 8, 1, 7, 2, 3, 9],
+           [5, 1, 4, 9, 7, 8, 6, 2, 3],
+           [9, 7, 6, 2, 3, 1, 4, 5, 8],
+           [2, 8, 3, 6, 5, 4, 9, 0, 0]],
+        'solution': [[4, 5, 8, 7, 9, 6, 3, 1, 2],
+              [7, 6, 9, 1, 2, 3, 5, 8, 4],
+              [1, 3, 2, 4, 8, 5, 7, 9, 6],
+              [8, 2, 7, 3, 6, 9, 1, 4, 5],
+              [3, 9, 1, 5, 4, 2, 8, 6, 7],
+              [6, 4, 5, 8, 1, 7, 2, 3, 9],
+              [5, 1, 4, 9, 7, 8, 6, 2, 3],
+              [9, 7, 6, 2, 3, 1, 4, 5, 8],
+              [2, 8, 3, 6, 5, 4, 9, 7, 1]],
+        'health': 3,
+        'difficulty': 'Medium'
+
+}
+
+# ============== Global variables ==============
 play_again = False
 last_game_score = 0
 last_game_possible = True
-
 end_message = ''
 current_platform = 'ios'
-
 cords = [0, 0]
 board_type = None
 value = 0
 
-
-# ======= Staic variables =======
+# ============== Staic variables ==============
 SCREEN_SIZE = (500, 600)
 GRID_GAP = SCREEN_SIZE[0]/9
 
 #This dictionary contains paths to the images in the project, depending on the current operating system
 PATHS = {
     'windows':{
-        'ui_main_menu': 'img\MainMenuTemplate.png',
-        'ui_main_menu_disabledLastGame': 'img\MainMenuTemplateLastGameDisabled.png',
-        'ui_loading_screen': 'img\LoadingScreen.png',
-        'game_ui_white': 'img\GameUIWhite.png',
-        'game_ui_dark': 'img\GameUIDark.png',
-        'end_screen': 'img\EndScreen.png',
+        'ui_main_menu': 'img\\MainMenuTemplate.png',
+        'ui_main_menu_disabledLastGame': 'img\\MainMenuTemplateLastGameDisabled.png',
+        'ui_loading_screen': 'img\\LoadingScreen.png',
+        'game_ui_white': 'img\\GameUIWhite.png',
+        'game_ui_dark': 'img\\GameUIDark.png',
+        'end_screen': 'img\\EndScreen.png',
         'boards': 'boards.json',
-        'health': {3: 'img\heart_100.png', 2: 'img\heart_66.png', 1: 'img\heart_33.png'},
-        'pencil': {True: 'img\pencil_clicked.png', False: 'img\pencil_unclicked.png'},
+        'health': {3: 'img\\heart_100.png', 2: 'img\\heart_66.png', 1: 'img\\heart_33.png'},
+        'pencil': {True: 'img\\pencil_clicked.png', False: 'img\\pencil_unclicked.png'},
         'resultsDataBase' : 'results.csv'
     },
     'ios':{
@@ -97,30 +119,7 @@ colour_themes = {
 }
 
 
-
-
-# ======= Themes =======
-current_theme = 'white' #This variable contains the current theme, at the beginning it is set to white
-colour_themes = { 
-    'white': {
-        'background_colour': (250, 250, 250),
-        'highlited_colour': (177, 219, 238),
-        'highlited_colour_background': (230, 230, 230),
-        'highlited_number_colour': (118, 171, 246),
-        'number': (0, 0, 0),
-        'ui': PATHS[current_platform]['game_ui_white']
-    },
-    'dark': {
-        'background_colour': (40, 41, 47),
-        'highlited_colour': (86, 166, 206),
-        'highlited_colour_background': (53, 55, 63),
-        'highlited_number_colour': (86, 166, 206),
-        'number': (106, 109, 124),
-        'ui': PATHS[current_platform]['game_ui_dark']
-    }
-}
-
-# ======= Pygame screen init =======
+# ============== Pygame screen init ==============
 screen = pygame.display.set_mode((SCREEN_SIZE))
 pygame.display.set_caption("Sudoku")
 
@@ -143,7 +142,22 @@ def set_current_platform():
     colour_themes['white']['ui'] = PATHS[current_platform]['game_ui_white']
     colour_themes['dark']['ui'] = PATHS[current_platform]['game_ui_dark']
 
-# ===================== Game functions =====================
+# ============== Game functions ==============
+
+def save_score(board, time, health):
+    #Function saves the result of the game (Date, difficulty level, lives remaining, time, score) to a csv file
+
+    #Read csv file
+    CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase'])
+
+    #Sets the new row
+    new_row = {'Date': date.today(), 'DifficultyLevel': board['difficulty'], 'LivesRemaining': health, 'Time': time, 'Score': count_score(board['difficulty'], time, health)}
+
+    #Add the new row to data
+    CsvFile.loc[len(CsvFile)] = new_row
+
+    #Save data to the file
+    CsvFile.to_csv(PATHS[current_platform]['resultsDataBase'], index=False)
 
 def get_sudoku_grid(searched_board):
     # The function gets the sudoku board from api or from file
@@ -217,6 +231,63 @@ def add_notes(value, cords):
     if not value in notes[int(cords[0])][int(cords[1])]:
         notes[int(cords[0])][int(cords[1])].append(value)
         notes[int(cords[0])][int(cords[1])].sort()
+
+def get_highlighted_box_cords(cords):
+    #This function returns the top-left cordinates of the 3x3 box, selected by the player
+    if cords[0] >= 0 and cords[0] <= 2:
+        if cords[1] >= 0 and cords[1] <= 2:
+            return [0, 0]
+        elif cords[1] >= 3 and cords[1] <= 5:
+            return [0, 3]
+        elif cords[1] >= 6 and cords[1] <= 8:
+            return [0, 6]
+    elif cords[0] >= 3 and cords[0] <= 5:
+        if cords[1] >= 0 and cords[1] <= 2:
+            return [3, 0]
+        elif cords[1] >= 3 and cords[1] <= 5:
+            return [3, 3]
+        elif cords[1] >= 6 and cords[1] <= 8:
+            return[3, 6]
+    elif cords[0] >= 6 and cords[0] <= 8:
+        if cords[1] >= 0 and cords[1] <= 2:
+            return [6, 0]
+        elif cords[1] >= 3 and cords[1] <= 5:
+            return[6, 3]
+        elif cords[1] >= 6 and cords[1] <= 8:
+            return[6, 6]
+    #If selected cords are out of the board returns the original cords
+    else:
+        return cords
+
+def get_cords(pos):
+    #This function returns the cordinates of the tile, selected by the player
+    cords = [0, 0]
+    cords[0] = pos[0] // GRID_GAP #Row index
+    cords[1] = pos[1] // GRID_GAP #Column index
+    
+    #Returns calculated cordinates
+    return cords
+
+def if_win(board):
+    #This funtion checks if it is the end of the game
+    if board['value'] == board['solution']:
+        return True
+
+def count_score(difficulty, time, health):
+    global last_game_score
+    if difficulty == "Easy":
+        difficulty_level = 1
+    elif difficulty == "Medium":
+        difficulty_level = 2
+    elif difficulty == "Hard":
+        difficulty_level = 3
+    score = int(-1 * (0.3 * difficulty_level / health * time) + 1000)
+    last_game_score = score
+    if score >= 0:
+        return score
+    else:
+        return 0
+
 # ======= Draw functions =======
         
 def draw_highlighted_cells():
@@ -309,113 +380,51 @@ def draw_pencil_button(is_clicked):
     if is_clicked == False:
         screen.blit(unclicked, (125, 525))
 
+def draw_time(start_ticks, recent_time=0):
+    #Function calculates and display the time since the game started
+    
+    #Calculate time in seconds
+    time = (pygame.time.get_ticks() - start_ticks) / 1000
+    time = math.floor(time) #Round down the time
+    
+    #Add last game time if the game continues
+    time += recent_time
 
-#===================== End screen functions ============================
+    #Calculate minutes and seconds from the total time
+    seconds = time % 60 
+    minutes = time // 60
 
-def check_score(end_message):
+    #Format the seconds and minutes to have leading zeros if less than 10
+    if seconds <= 9:
+        seconds = '0' + str(seconds)
+    if minutes <= 9:
+        minutes = '0' + str(minutes)
+
+    #Render time text
+    text = FONT_TIMER.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
+    
+    #Display current time on the screen
+    screen.blit(text, (310, 522))
+    
+    #Return total time
+    return (time)
+
+#============== End screen functions ==============
+
+def set_end_message_cords(end_message):
+    #Function sets the cordinates for rendering the end message score based on game result
     if end_message == 'victory':
         return (160, 100)
     if end_message == 'defeat':
         return (168, 100)
 
-
-
-def get_cords(pos):
-    #This function gets cords of highlighted cell
-    temp = [0, 0]
-    temp[0] = pos[0] // GRID_GAP
-    temp[1] = pos[1] // GRID_GAP
-    print(temp)
-    return temp
-
-def get_highlighted_box_cords(cords):
-    #This function gets the box cords from highlited cell
-    if cords[0] >= 0 and cords[0] <= 2:
-        if cords[1] >= 0 and cords[1] <= 2:
-            return [0, 0]
-        elif cords[1] >= 3 and cords[1] <= 5:
-            return [0, 3]
-        elif cords[1] >= 6 and cords[1] <= 8:
-            return [0, 6]
-    elif cords[0] >= 3 and cords[0] <= 5:
-        if cords[1] >= 0 and cords[1] <= 2:
-            return [3, 0]
-        elif cords[1] >= 3 and cords[1] <= 5:
-            return [3, 3]
-        elif cords[1] >= 6 and cords[1] <= 8:
-            return[3, 6]
-    elif cords[0] >= 6 and cords[0] <= 8:
-        if cords[1] >= 0 and cords[1] <= 2:
-            return [6, 0]
-        elif cords[1] >= 3 and cords[1] <= 5:
-            return[6, 3]
-        elif cords[1] >= 6 and cords[1] <= 8:
-            return[6, 6]
-    else:
-        return cords
-
-
-def if_win(board):
-    #This funtion checks if it is the end of the game
-    if board['value'] == board['solution']:
-        return True
-
-
-        
-#example grid
-test_grid ={
-        'value':[[4, 5, 8, 7, 9, 6, 3, 1, 2],
-           [7, 6, 9, 1, 2, 3, 5, 8, 4],
-           [1, 3, 2, 4, 8, 5, 7, 9, 6],
-           [8, 2, 7, 3, 6, 9, 1, 4, 5],
-           [3, 9, 1, 5, 4, 2, 8, 6, 7],
-           [6, 4, 5, 8, 1, 7, 2, 3, 9],
-           [5, 1, 4, 9, 7, 8, 6, 2, 3],
-           [9, 7, 6, 2, 3, 1, 4, 5, 8],
-           [2, 8, 3, 6, 5, 4, 9, 0, 0]],
-        'solution': [[4, 5, 8, 7, 9, 6, 3, 1, 2],
-              [7, 6, 9, 1, 2, 3, 5, 8, 4],
-              [1, 3, 2, 4, 8, 5, 7, 9, 6],
-              [8, 2, 7, 3, 6, 9, 1, 4, 5],
-              [3, 9, 1, 5, 4, 2, 8, 6, 7],
-              [6, 4, 5, 8, 1, 7, 2, 3, 9],
-              [5, 1, 4, 9, 7, 8, 6, 2, 3],
-              [9, 7, 6, 2, 3, 1, 4, 5, 8],
-              [2, 8, 3, 6, 5, 4, 9, 7, 1]],
-        'health': 3,
-        'difficulty': 'Medium'
-
-}
-
-
-
-
-
-def count_score(difficulty, time, health):
-    global last_game_score
-    if difficulty == "Easy":
-        difficulty_level = 1
-    elif difficulty == "Medium":
-        difficulty_level = 2
-    elif difficulty == "Hard":
-        difficulty_level = 3
-    score = int(-1 * (0.3 * difficulty_level / health * time) + 1000)
-    last_game_score = score
-    if score >= 0:
-        return score
-    else:
-        return 0
-
-def save_score(board, time, health):
-    CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase'])
-    new_row = {'Date': date.today(), 'DifficultyLevel': board['difficulty'], 'LivesRemaining': health, 'Time': time, 'Score': count_score(board['difficulty'], time, health)}
-    CsvFile.loc[len(CsvFile)] = new_row
-    CsvFile.to_csv(PATHS[current_platform]['resultsDataBase'], index=False)
-    print("Score saved", new_row)
-
 def get_score_by_difficulty(difficulty):
+    #Function reads the results from the CSV database and returns the best score of the given difficulty
 
+    #Read the csv file and sort it by Difficulty level and score in the descending order
     CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase']).sort_values(by=['DifficultyLevel', 'Score'], ascending=[False, False])
+    
+    #Returns the best score specified by the difficulty level
     if difficulty == "Easy":
         easy_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Easy'].iloc[0]
         return easy_row['Score']
@@ -426,43 +435,26 @@ def get_score_by_difficulty(difficulty):
         hard_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Hard'].iloc[0]
         return hard_row['Score']
 
-def draw_time(start_ticks, recent_time=0):
-    time = (pygame.time.get_ticks() - start_ticks) / 1000
-    time = math.floor(time)
-    time += recent_time
-    seconds = time % 60 
-    minutes = time // 60
-    if seconds <= 9:
-        seconds = '0' + str(seconds)
-    if minutes <= 9:
-        minutes = '0' + str(minutes)
-
-    text = FONT_TIMER.render((str(minutes) + ' : ' + str(seconds)), 1, colour_themes[current_theme]['number'])
-    screen.blit(text, (310, 522))
-    return (time)
-
-
-
-
-
-
-
-
-                    
+# ======= Draw functions =======
 
 def draw_last_game_score():
+    #Function renders and displays the score from the last game
 
     score_text = FONT_LAST_GAME_SCORE.render(str(last_game_score) + ' points', 1, COLORS_END_MESSAGE[end_message])
     screen.blit(score_text, (180, 150))
 
 def draw_best_scores():
+    #Function draws the best scores for each difficulty level
+    
+    #Translation variable to control the vertical position of the text
     translation = 0
+
     for difficulty in ['Easy', 'Medium', 'Hard']:
         best_score_text = FONT_BEST_SCORES.render(str(get_score_by_difficulty(str(difficulty))), 1, COLORS_DIFFICULTY[difficulty])
         screen.blit(best_score_text, (230, 292 + 65 * translation))
         translation += 1
 
-# ======= Main menu function =======
+# ============================ Main menu function ===================================
 
 def main_menu():
     #This function is responsible for the menu in game. It draws a menu window and allows player to choose the difficulty level or continue with the last game
@@ -527,10 +519,10 @@ def main_menu():
                     screen.blit(loading,(0, 0))
                     run = False
 
-        #update the screen
+        #Update pygame window
         pygame.display.update()
 
-# ======= Game function =======
+# ============================ Game function ===================================
         
 def game():
     #The main game function responsible for the game.
@@ -653,7 +645,7 @@ def game():
             
             #If pencil active
             if is_pencil_clicked == False:  
-                if valid(board, value, cords) == True:
+                if valid(board, value, cords) == True: #If possible, fill the tile
                     board['value'][int(cords[0])][int(cords[1])] = value
                     notes[int(cords[0])][int(cords[1])] = [0] #Reset
                 else:
@@ -662,67 +654,88 @@ def game():
             #If pencil doesn't active
             if is_pencil_clicked == True:
                 add_notes(value, cords)
-
-#=================================================================================================================================================
+        
+        #Ends the game if defeat
         if health == 0:
-            print('Koniec')
             last_game_possible = False
-            end_message = "defeat"
+            end_message = "defeat" #Set end message text
             run = False
 
+        #Ends game if victory
         if if_win(board) == True:
-            print("Wygrana")
             last_game_possible = False
-            end_message = "victory"
-            save_score(board, current_time, health)
+            end_message = "victory" #Set end message text
+            save_score(board, current_time, health) #Save the result of the game
             run = False
-        # #test funtion
-        # debug_mouse_position()
             
-        #Time counter
+        #Set the frame rate limit to 60 frames per second
         clock.tick(60)
+
+
         if 'time' in board:
+            #If player opens the game again, the last time is added to the current time
             current_time = draw_time(start_ticks, board['time'])  #Saved the current time and display it
         else:
+            #Display time from zero
             current_time = draw_time(start_ticks) 
+        
+        #Update the game window
         pygame.display.update()
 
-# ======= End menu function =======
+# ============================ End menu function ============================
         
-def end():
-    global end_message
-    global play_again
-    print("End screen")
+def end_menu():
+    #Function responsible for the end screen
+    
+    #Import global variables
+    global end_message, play_again
+
+    #Load the end screen image
     end_screen = pygame.image.load(PATHS[current_platform]['end_screen'])
 
+    #Render the end message text
     end_text = FONT_END_MESSAGE.render(end_message.upper(), 1, COLORS_END_MESSAGE[end_message])
 
 
     run = True
     while run:
+
+        #Display the end screen image and end message text
         screen.blit(end_screen,(0, 0))
-        screen.blit(end_text, check_score(end_message))
+        screen.blit(end_text, set_end_message_cords(end_message))
+        
+        #If it is victory draw the last game score
         if end_message == 'victory':
             draw_last_game_score()
 
+        #Draw best scores on the screen
         draw_best_scores()
 
         for event in pygame.event.get():
+
+            #Quit the game
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
                 sys.exit()
+
+            
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
+                #Set mouse position
                 pos = pygame.mouse.get_pos()
+
+                #Check if player wants to play again
                 if pos[0] > 115 and pos[0] < 385 and pos[1] > 455 and pos[1] < 525:
-                    print("Play again")
                     run = False
                     play_again = True
                     main()
+        
+        #Update pygame window
         pygame.display.update()
 
 
-# ======= Main function =======
+# ============================ Main function ============================
         
 def main():
     #Main project function
@@ -739,7 +752,7 @@ def main():
         play_again = False
         main_menu()
         game()
-        end()
+        end_menu()
         if play_again == True:
             continue
         if play_again == False:
