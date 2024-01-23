@@ -129,7 +129,7 @@ def debug_mouse_position():
     print(debug_pos)
 
 
-# ======= =======
+# ======= Init functions=======
 def set_current_platform():
     #This function sets current platform
     global current_platform
@@ -138,7 +138,7 @@ def set_current_platform():
         current_platform = 'ios'
     if platform.system() == 'Windows':
         current_platform = 'windows'
-    #refresh colour_themes dictionary
+    #Refresh colour_themes dictionary
     colour_themes['white']['ui'] = PATHS[current_platform]['game_ui_white']
     colour_themes['dark']['ui'] = PATHS[current_platform]['game_ui_dark']
 
@@ -223,14 +223,19 @@ def valid(board, value, cords):
     else:
         return False
 
-def add_notes(value, cords):
-    #This function insert the player's notes to the note variable
+def change_notes(value, cords):
+    #This function insert the player's notes into the note variable or remeves them from the notes
     
     #import global variable
     global notes
+
+    #Add number to notes
     if not value in notes[int(cords[0])][int(cords[1])]:
         notes[int(cords[0])][int(cords[1])].append(value)
         notes[int(cords[0])][int(cords[1])].sort()
+    #Remove number from notes
+    else:
+        notes[int(cords[0])][int(cords[1])].remove(value)
 
 def get_highlighted_box_cords(cords):
     #This function returns the top-left cordinates of the 3x3 box, selected by the player
@@ -424,6 +429,11 @@ def get_score_by_difficulty(difficulty):
     #Read the csv file and sort it by Difficulty level and score in the descending order
     CsvFile = pd.read_csv(PATHS[current_platform]['resultsDataBase']).sort_values(by=['DifficultyLevel', 'Score'], ascending=[False, False])
     
+    #Check if there are any results for the specified difficulty
+    if CsvFile[CsvFile['DifficultyLevel'] == difficulty].empty:
+        return '000' #If there are no results, return 000
+    
+
     #Returns the best score specified by the difficulty level
     if difficulty == "Easy":
         easy_row = CsvFile.loc[CsvFile['DifficultyLevel'] == 'Easy'].iloc[0]
@@ -641,19 +651,19 @@ def game():
                     value = 9
         
         #Chcecks player move
-        if (value != 0 and board['value'][int(cords[0])][int(cords[1])] == 0):
+        if board['value'][int(cords[0])][int(cords[1])] == 0:
             
-            #If pencil active
-            if is_pencil_clicked == False:  
+            #If pencil doesn't active
+            if is_pencil_clicked == False and value != 0:  
                 if valid(board, value, cords) == True: #If possible, fill the tile
                     board['value'][int(cords[0])][int(cords[1])] = value
                     notes[int(cords[0])][int(cords[1])] = [0] #Reset
                 else:
                     health -= 1
             
-            #If pencil doesn't active
+            #If pencil active
             if is_pencil_clicked == True:
-                add_notes(value, cords)
+                change_notes(value, cords)
         
         #Ends the game if defeat
         if health == 0:
