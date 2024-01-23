@@ -43,15 +43,15 @@
    - Jakub Pawiński
 
    ### Zjęcia z gry
-   ![img\MainMenuTemplate.png](img\MainMenuTemplate.png)
+   ![GameScreenshot01](img/MainMenuTemplate.png)
    
    <br>
 
-   ![img\GameScreenshot01.png](img\GameScreenshot01.png)
+   ![GameScreenshot02](img/GameScreenshot01.png)
 
    <br>
 
-   ![img\GameScreenshot02.png](img\GameScreenshot02.png)
+   ![GameScreenshot03](img/GameScreenshot02.png)
 
 
 ## ENG
@@ -95,12 +95,12 @@
 
    ### Screenshots
 
-   ![img\MainMenuTemplate.png](img\MainMenuTemplate.png)
+   ![GameScreenshot01](img/MainMenuTemplate.png)
    
    <br>
 
-   ![img\GameScreenshot01.png](img\GameScreenshot01.png)
+   ![GameScreenshot02](img/GameScreenshot01.png)
 
    <br>
 
-   ![img\GameScreenshot02.png](img\GameScreenshot02.png)
+   ![GameScreenshot03](img/GameScreenshot02.png)
