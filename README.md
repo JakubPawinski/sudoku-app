@@ -1,4 +1,4 @@
-# Sudoku Game Project
+# Sudoku
 
 [PL](#pl)
 
@@ -42,7 +42,7 @@
    ### Autor
    - Jakub Pawiński
 
-   ### Zjęcia z gry
+   ### Zdjęcia z gry
    ![GameScreenshot01](img/MainMenuTemplate.png)
    
    <br>
