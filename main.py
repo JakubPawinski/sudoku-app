@@ -129,7 +129,7 @@ def debug_mouse_position():
     print(debug_pos)
 
 
-# ======= Init functions=======
+# ======= Init functions =======
 def set_current_platform():
     #This function sets current platform
     global current_platform
