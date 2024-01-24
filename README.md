@@ -6,8 +6,8 @@
 
 ## PL
    ### Opis projektu
-   Projekt skupia się na stworzeniu gry Sudoku w pygamie. Sudoku to logiczna łamigłówka numeryczna, której celem jest wypełnienie planszy 9x9 liczbami od 1 do 9 w taki sposób, aby w każdym rzędzie, kolumnie i 3x3 podkwadracie nie powtarzały się żadne liczby.
-   Gracz na moliwość wyboru poziomu trudności - łatwego, redniego lub trudnego. Plansze są generowane z wykorzystaniem zewnętrznego API, zapewniając różnorodność rozrywki. Gra jest przewidziana dla 1 osoby.
+   Projekt skupia się na stworzeniu gry Sudoku w pygamie. Sudoku to logiczna łamigłówka numeryczna, której celem jest wypełnienie planszy 9x9 cyframi od 1 do 9 w taki sposób, aby w każdym rzędzie, kolumnie i 3x3 podkwadracie nie powtarzały się żadne cyfry.
+   Gracz na moliwość wyboru poziomu trudności - łatwego, średniego lub trudnego. Plansze są generowane z wykorzystaniem zewnętrznego API, zapewniając różnorodność rozrywki. Gra jest przewidziana dla 1 osoby.
    
    ### Funkcje
    - Trzy poziomy trudności: Łatwy, Średni i Trudny
@@ -19,7 +19,7 @@
    ### Zasady gry:
    
    1. Standardowa plansza Sudoku składa się z siatki 9x9 podzielonej na 3x3 bloki. Każdy blok jest również podzielony na 3x3 pola.
-   2. Gracz wypełnia planszę liczbami od 1 do 9. Każda liczba może pojawić się tylko raz w każdym rzędzie, kolumnie i bloku 3x3.
+   2. Gracz wypełnia planszę cyframi od 1 do 9. Każda cyfra może pojawić się tylko raz w każdym rzędzie, kolumnie i bloku 3x3.
    3. Gra zaczyna się od wstępnie wypełnionej siatki, gdzie niektóre pola są już uzupełnione cyframi.
    4. Każde pole na planszy może zawierać tylko jedną cyfrę. Zadanie gracza polega na uzupełnieniu całej planszy.
 
