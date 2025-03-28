@@ -1,106 +1,101 @@
-# Sudoku
+# Sudoku Game
 
-[PL](#pl)
+## Project Overview
 
-[ENG](#eng)
+This project is a fully-featured **Sudoku game** developed using **Pygame**. Sudoku is a classic logic-based number puzzle where players fill a 9x9 grid with digits from 1 to 9, ensuring no repetition in any row, column, or 3x3 subgrid. The game offers a polished user experience with multiple difficulty levels, dynamic themes, and advanced features like score tracking and game state persistence.
 
-## PL
-   ### Opis projektu
-   Projekt skupia się na stworzeniu gry Sudoku w pygamie. Sudoku to logiczna łamigłówka numeryczna, której celem jest wypełnienie planszy 9x9 cyframi od 1 do 9 w taki sposób, aby w każdym rzędzie, kolumnie i 3x3 podkwadracie nie powtarzały się żadne cyfry.
-   Gracz na moliwość wyboru poziomu trudności - łatwego, średniego lub trudnego. Plansze są generowane z wykorzystaniem zewnętrznego API, zapewniając różnorodność rozrywki. Gra jest przewidziana dla 1 osoby.
-   
-   ### Funkcje
-   - Trzy poziomy trudności: Łatwy, Średni i Trudny
-   - Dynamiczny interfejs użytkownika z motywem jasnym i ciemnym
-   - Tryb ołówka do robienia notatek
-   - Śledzenie wyników i wyświetlanie najwyższego wyniku
-   - Możliwośc zapisu gry i kontynuowania w późniejszym czasie
-   
-   ### Zasady gry:
-   
-   1. Standardowa plansza Sudoku składa się z siatki 9x9 podzielonej na 3x3 bloki. Każdy blok jest również podzielony na 3x3 pola.
-   2. Gracz wypełnia planszę cyframi od 1 do 9. Każda cyfra może pojawić się tylko raz w każdym rzędzie, kolumnie i bloku 3x3.
-   3. Gra zaczyna się od wstępnie wypełnionej siatki, gdzie niektóre pola są już uzupełnione cyframi.
-   4. Każde pole na planszy może zawierać tylko jedną cyfrę. Zadanie gracza polega na uzupełnieniu całej planszy.
+The game is designed for single-player use and provides an engaging and intuitive interface for players of all skill levels.
 
-   ### Wymagania
-   - Python 3
-   - Biblioteki:
-      - Pygame
-      - Pandas
-      - Requests
+## Key Features
 
-   ### Użycie
-   - Uruchom program main.py
-   - Wybierz poziom trudności
+- **Multiple Difficulty Levels**: Choose between Easy, Medium, and Hard for a tailored challenge.
+- **Dynamic Themes**: Switch between light and dark themes for a personalized visual experience.
+- **Pencil Mode**: Take notes directly on the board to assist with solving puzzles.
+- **Score Tracking**: Tracks and displays scores based on performance, including high scores for each difficulty level.
+- **Game Persistence**: Save and resume your last game seamlessly.
+- **API Integration**: Sudoku boards are dynamically fetched from an external API for variety and replayability.
+- **Error Feedback**: Lose health points for incorrect moves, adding a layer of challenge.
 
-   ### Sterowanie
-   - Poruszaj sie po komórkach za pomocą kliknięć myszy
-   - Naciśnij klawisze numeryczne(1-9), aby wprowadzić wartości
-   - Aktywuj/dezaktywuj tryb ołówka, klikając przycisk ołówka
+## Game Rules:
 
-   ### Autor
-   - Jakub Pawiński
+1.  The standard Sudoku board consists of a 9x9 grid divided into 3x3 blocks. Each block is further divided into 3x3 fields.
+2.  The player fills the board with numbers from 1 to 9. Each number can only appear once in each row, column, and 3x3 block.
+3.  The game starts with a partially filled grid, where some fields already have numbers.
+4.  Each field on the board can only contain one digit. The player's task is to fill the entire board.
 
-   ### Zdjęcia z gry
-   ![GameScreenshot01](img/MainMenuTemplate.png)
-   
-   <br>
+## System Requirements
 
-   ![GameScreenshot02](img/GameScreenshot01.png)
+- **Python Version**: Python 3.8 or higher
+- **Required Libraries**:
+  - [Pygame](https://www.pygame.org/)
+  - [Pandas](https://pandas.pydata.org/)
+  - [Requests](https://docs.python-requests.org/)
 
-   <br>
+## Installation Guide
 
-   ![GameScreenshot03](img/GameScreenshot02.png)
+Follow these steps to set up and run the Sudoku game:
 
+1. **Ensure Python is Installed**:
+   Verify that Python 3.8 or higher is installed on your system. You can download it from [python.org](https://www.python.org/).
 
-## ENG
+2. **Clone the Repository**:
+   Clone the project repository to your local machine:
 
-   ### Project Description
+   ```bash
+   git clone https://github.com/JakubPawinski/sudoku-app.git
+   cd sudoku
 
-   The project focuses on creating a Sudoku game in Pygame. Sudoku is a numerical logic puzzle game where the goal is to fill a 9x9 grid with numbers from 1 to 9 in such a way that no numbers repeat in any row, column, or 3x3 subgrid. Players have the option to choose the difficulty level - easy, medium, or hard. The boards are generated using an external API to provide gameplay variety. The game is designed for single-player use.
+   ```
 
-   ### Features
-   - Three difficulty levels: Easy, Medium, and Hard
-   - Dynamic user interface with light and dark themes
-   - Pencil mode for note-taking
-   - Score tracking and high score display
-   - Save and continue the last game
+3. **Install Dependencies**:
 
-   ### Game Rules:
-   1. The standard Sudoku board consists of a 9x9 grid divided into 3x3 blocks. Each block is further divided into 3x3 fields.
-   2. The player fills the board with numbers from 1 to 9. Each number can only appear once in each row, column, and 3x3 block.
-   3. The game starts with a partially filled grid, where some fields already have numbers.
-   4. Each field on the board can only contain one digit. The player's task is to fill the entire board.
+   ```bash
+   pip install pygame pandas requests
+   ```
 
-   ### Requirements
+4. **Run the Game**:
+   ```bash
+   python main.py
+   ```
 
-   - Python 3
-   - Libraries:
-      - Pygame
-      - Pandas
-      - Requests
+## Controls
 
-   ### Usage
-   - Run the main.py program.
-   - Choose the difficulty level.
+### Mouse Interaction:
 
-   ### Controls
-   - Navigate through cells using mouse clicks.
-   - Press the numeric keys (1-9) to input values.
-   - Activate/deactivate pencil mode by clicking the pencil button.
+- **Click on cells** to select them.
+- **Use the pencil button** to toggle note-taking mode.
 
-   ### Author
-   - Jakub Pawiński
+### Keyboard Input:
 
-   ### Screenshots
+- **Press numeric keys (1-9)** to input values into selected cells.
 
-   ![GameScreenshot01](img/MainMenuTemplate.png)
-   
-   <br>
+### Theme Toggle:
 
-   ![GameScreenshot02](img/GameScreenshot01.png)
+- **Click the theme button** to switch between light and dark modes.
+
+## Scoring System
+
+The scoring system rewards players based on the difficulty level, time taken, and remaining health. Scores are calculated as follows:
+
+- **Easy**: Base score multiplier of 1.
+- **Medium**: Base score multiplier of 2.
+- **Hard**: Base score multiplier of 3.
+- **Health and Time**: Higher health and faster completion result in higher scores.
+
+High scores for each difficulty level are saved and displayed on the end screen.
+
+## Screenshots
+
+![GameScreenshot01](img/MainMenuTemplate.png)
 
    <br>
 
-   ![GameScreenshot03](img/GameScreenshot02.png)
+![GameScreenshot02](img/GameScreenshot01.png)
+
+   <br>
+
+![GameScreenshot03](img/GameScreenshot02.png)
+
+## Author
+
+- Jakub Pawiński
